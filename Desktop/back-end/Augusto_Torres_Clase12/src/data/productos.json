@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Coca Cola",
+    "price": 150,
+    "image": "https://cdn2.iconfinder.com/data/icons/beverage-packaging-free-pack-1/512/can-packaging-free-01-256.png",
+    "id": 1
+  },
+  {
+    "name": "Papas fritas",
+    "price": 90,
+    "image": "https://cdn0.iconfinder.com/data/icons/fastfood-30/64/french-fries-potato-chip-fast-food-fastfood-256.png",
+    "id": 2
+  },
+  {
+    "name": "Pollo",
+    "price": 200,
+    "image": "https://cdn0.iconfinder.com/data/icons/fastfood-30/64/chicken-fries-fast-food-fastfood-thigh-grill-256.png",
+    "id": 3
+  },
+  {
+    "name": "Paleta de helado",
+    "price": 80,
+    "image": "https://cdn0.iconfinder.com/data/icons/summer-26/512/Donut-256.png",
+    "id": 4
+  },
+  {
+    "name": "Hamburguesa",
+    "price": 350,
+    "image": "https://cdn0.iconfinder.com/data/icons/food-and-drink-146/48/hamburger-burger-fastfood-food-emoj-symbol-30703-256.png",
+    "id": 5
+  },
+  {
+    "name": "Pancho",
+    "price": 200,
+    "image": "https://cdn3.iconfinder.com/data/icons/food-set-3/91/Food_C207-256.png",
+    "id": 6
+  },
+  {
+    "name": "Tacos",
+    "price": "350",
+    "image": "https://cdn0.iconfinder.com/data/icons/fastfood-31/64/kebab-taco-meat-chicken-fastfood-food-bisto-256.png",
+    "id": 7
+  },
+  {
+    "name": "Agua",
+    "price": "90",
+    "image": "https://cdn2.iconfinder.com/data/icons/beverage-packaging-free-pack-1/512/bottle-package-free-01-256.png",
+    "id": 8
+  }
+]

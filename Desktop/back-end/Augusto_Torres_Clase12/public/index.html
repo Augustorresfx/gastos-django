@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
+    integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.css"
+        type="text/css"
+    />
+    <title>Clase 12</title>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Agregar un producto</h1>
+        <form method="POST" id="addProduct">
+            <div class="form-group">
+                <label for="name">Nombre</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Nombre">
+            </div>
+            <div class="form-group">
+                <label for="price">Precio</label>
+                <input type="text" class="form-control" id="price" name="price" placeholder="Precio">
+            </div>
+            <div class="form-group">
+                <label for="price">Imagen</label>
+                <input type="text" class="form-control" id="image" name="image" placeholder="Ingrese una imagen">
+            </div>
+            <button type="submit" class="btn btn-primary mt-4">Agregar</button>
+        </form>
+        <h2>Agregados recientemente</h2>
+        <div id="products-container"></div>
+        <h2>Chat Grupal</h2>
+        <input type="text" class="form-control" id="email" name="email" placeholder="Ingrese su mail">
+        <div id="chat-container"></div>
+        <form id="formSendMsg" class="form-inline" autoComplete="off">
+            <div class="form-group">
+                <input  id="message" type="text" class="form-control my-2 mr-2" placeholder="Ingrese un mensaje">
+                <button  id="btnSend" type="submit" class="btn btn-primary my-2">Enviar</button>
+            </div>
+        </form>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+    <script src="js/client.js"></script>
+</body>
+</html>
