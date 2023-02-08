@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    
+    {{error}}
+    <main class="container">
+        <div class="row">
+            <div class="col-md-4 offset-md-4 mt-5">
+                <form action="/clients/create/" method="POST" class="card card-body ">
+                    <h1 class="text-center">
+                        Crear gasto
+                    </h1>
+
+                    {{error}}
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="title">Title:</label>
+                        <input type="text" name="title" id="title"
+                        class="form-control" placeholder="Escribe el nombre del cliente">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description">Description:</label>
+                        <input type="text" name="description" id="description"
+                        class="form-control" placeholder="Escribe su descripción">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="title">Price:</label>
+                        <input type="number" name="price" id="price"
+                        class="form-control" placeholder="Escribe su precio">
+                    </div>
+
+                    <div class="mb-3">
+                        <i class="fa-regular fa-plane"></i>
+                        <label for="plane">Avión:</label>
+                        {{ form.category }}
+                    </div>
+
+                 
+                    <button class="btn btn-primary">
+                        Crear
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+{% endblock %}
