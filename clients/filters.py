@@ -1,16 +1,8 @@
-from django.forms import ModelForm
-from django import forms
+import django_filters
+from .models import Product
+from .forms import forms
 
-from .models import Product, Category
-
-class ClientFilterForm(ModelForm):
-    class Meta:
-        model = Product
-        fields = [
-            'title',
-        ]
-
-class ClientForm(ModelForm):
+class ProductFilter(django_filters.FilterSet):
     class Meta:
         model = Product
         fields = ['title', 'price', 'category', 'alumn', 'mechanic', 'fuel', 'takeoff_place', 
@@ -20,19 +12,8 @@ class ClientForm(ModelForm):
                   'weight_with_external_load', 'reason_of_flight', 'other_reason', 'operator', 'client', 'loaded_fuel', 'operation_note', 'maintenance_note'
                   ]
         widgets = {
-            'category': forms.Select(attrs={
-                'class': 'form-select'
-            }),
-            'mechanic': forms.Select(attrs={
-                'class': 'form-select'
-            }),
-            'reason_of_flight': forms.Select(attrs={
-                'class': 'form-select'
-            }),
             'operator': forms.Select(attrs={
                 'class': 'form-select'
             }),
-            'client': forms.Select(attrs={
-                'class': 'form-select'
-            })
+
         }

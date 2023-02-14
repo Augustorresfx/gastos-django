@@ -3,9 +3,11 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.db import IntegrityError
-from .forms import ClientForm
+from .forms import ClientForm, ClientFilterForm
 from .models import Product, Category
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from .filters import ProductFilter
 # Create your views here.
 def home(request):
     return render(request, 'home.html')
@@ -38,9 +40,23 @@ def signup(request):
 
 @login_required
 def clients(request):
-    clients = Product.objects.all()
+  
+    context = {}   
+
+    filtered_clients = ProductFilter(
+        request.GET, 
+        queryset=Product.objects.all()
+        )
+    context['clients'] = filtered_clients.qs
+    paginated_filter = Paginator(filtered_clients.qs, 1)
+    page_number = request.GET.get("page")
+    filter_pages = paginated_filter.get_page(page_number)
+   
+    context['form'] = filtered_clients.form
+    context['pages'] = filter_pages
     categories = Category.objects.all()
-    return render(request, 'clients.html', {'clients': clients, 'categories': categories,})
+   
+    return render(request, 'clients.html', context=context)
 
 @login_required
 def create_product(request):
@@ -52,7 +68,9 @@ def create_product(request):
         })
     else:
         try:
+            
             form = ClientForm(request.POST)
+            print(form)
             new_client = form.save(commit=False)
             new_client.user = request.user
             new_client.save()
