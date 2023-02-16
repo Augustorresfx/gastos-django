@@ -21,10 +21,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
     path('signup/', views.signup, name='signup'),
-    path('clients/', views.clients, name='clients'),
-    path('clients/create/', views.create_product, name="create product"),
-    path('clients/<int:product_id>/', views.client_detail, name='client_detail'),
-    path('clients/<int:product_id>/delete/', views.delete_client, name='delete_client'),
+    path('gastos/', views.gastos, name='gastos'),
+    path('gastos/create/', views.create_gasto, name="crear_gasto"),
+    path('gastos/<int:product_id>/', views.gasto_detail, name='gasto_detail'),
+    path('gastos/<int:product_id>/delete/', views.delete_client, name='delete_gasto'),
     path('logout/', views.signout, name='logout'),
     path('signin/', views.signin, name='signin')
 ]

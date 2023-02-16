@@ -2,6 +2,7 @@
 
 {% block content %}
 {% load app_extras %}
+<main class="mt-5 pt-3">
 <div class="container-fluid px-4">
   <div class="row g-3 my-2">
   <div class="row my-5">
@@ -11,7 +12,7 @@
         <h3 class="fs-4 mb-3">
         Operador
       </h3>
-       <form method="GET" action="{% url 'clients' %}">
+       <form method="GET" action="{% url 'gastos' %}">
      
         <div class="d-grid gap-2 col-4">
         {{ form.operator }}
@@ -24,7 +25,7 @@
        <h3 class="fs-4 mb-3">
         Cliente
       </h3>
-       <form method="GET" action="{% url 'clients' %}">
+       <form method="GET" action="{% url 'gastos' %}">
      
         <div class="d-grid gap-2 col-4">
         {{ form.operator }}
@@ -37,7 +38,7 @@
         <h3 class="fs-4 mb-3">
          Precio
        </h3>
-        <form method="GET" action="{% url 'clients' %}">
+        <form method="GET" action="{% url 'gastos' %}">
      
         <div class="d-grid gap-2 col-4">
         {{ form.operator }}
@@ -110,13 +111,13 @@
                     <td>{{ product.loaded_fuel }}</td>
 
                     <td>
-                      <a class="w-10 btn btn-sm btn-primary" href="{% url 'client_detail' product.id %}">
+                      <a class="w-10 btn btn-sm btn-primary" href="{% url 'gasto_detail' product.id %}">
                         <span data-feather="edit"></span>
                         Editar
                       </a>
                     </td>
                     <td>
-                      <form action="{% url 'delete_client' product.id %}" method="POST">
+                      <form action="{% url 'delete_gasto' product.id %}" method="POST">
                         {% csrf_token %}
                       <button class="w-10 btn btn-sm btn-danger">
                         Eliminar

@@ -15,5 +15,8 @@ class ProductFilter(django_filters.FilterSet):
             'operator': forms.Select(attrs={
                 'class': 'form-select'
             }),
+            'category': forms.Select(attrs={
+                'class': 'form-select'
+            }),
 
         }
