@@ -49,7 +49,7 @@ def gastos(request):
         queryset=Product.objects.all()
         )
     context['clients'] = filtered_clients.qs
-    paginated_filter = Paginator(filtered_clients.qs, 3)
+    paginated_filter = Paginator(filtered_clients.qs, 1)
     page_number = request.GET.get("page")
     filter_pages = paginated_filter.get_page(page_number)
    
