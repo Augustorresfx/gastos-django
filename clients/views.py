@@ -8,7 +8,6 @@ from .models import Product, Category
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from .filters import ProductFilter
-import csv
 from django.http import HttpResponse
 import xlwt
 from datetime import timedelta, datetime
@@ -17,7 +16,6 @@ import json
 import openpyxl
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import Alignment,Border,Font,PatternFill,Side
-import pandas as pd
 from .models import Gasto
 
 # Create your views here.
