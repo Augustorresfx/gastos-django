@@ -6,9 +6,9 @@
     <main class="mt-5 pt-3">
         <div class="row">
             <div class="col-md-4 offset-md-4 mt-5">
-                <form action="/clients/create/" method="POST" class="card card-body ">
+                <form action="/gastos/create/" method="POST" class="card card-body ">
                     <h1 class="text-center">
-                        Crear gasto
+                        Crear operación
                     </h1>
 
                     {{error}}
@@ -17,19 +17,19 @@
                     <div class="mb-3">
                         <label for="title">Titulo:</label>
                         <input type="text" name="title" id="title"
-                        class="form-control" placeholder="Escribe el nombre del cliente">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="title">Coste:</label>
-                        <input type="number" name="price" id="price"
-                        class="form-control" placeholder="Escribe su precio">
+                        class="form-control" placeholder="Escribe el titulo de la operación">
                     </div>
 
                     <div class="mb-3">
                         <i class="fa-regular fa-plane"></i>
-                        <label for="plane">Avión:</label>
+                        <label for="plane">Aeronave:</label>
                         {{ form.category }}
+                    </div>
+
+                    <div class="mb-3">
+                        <i class="fa-regular fa-plane"></i>
+                        <label for="plane">Piloto:</label>
+                        {{ form.pilot }}
                     </div>
 
                     <div class="mb-3">
@@ -191,7 +191,7 @@
                         class="form-control" placeholder="Escribe la nota adicional">
                     </div>
                 
-                    <button class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary">
                         Crear
                     </button>
                 </form>

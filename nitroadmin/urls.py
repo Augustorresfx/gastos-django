@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from clients import views
+from django.views.decorators.csrf import csrf_exempt
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,6 +26,13 @@ urlpatterns = [
     path('gastos/create/', views.create_gasto, name="crear_gasto"),
     path('gastos/<int:product_id>/', views.gasto_detail, name='gasto_detail'),
     path('gastos/<int:product_id>/delete/', views.delete_client, name='delete_gasto'),
+    path('gastos/export_excel', views.export_excel, name="export_excel"),
+    path('expensas/', views.expensas, name='expensas'),
+    path('expensas/create/', views.create_expensa, name="crear_expensa"),
+    path('expensas/<int:gasto_id>/', views.expensa_detail, name='expensa_detail'),
+    path('expensas/<int:gasto_id>/delete/', views.delete_expensa, name='delete_expensa'),
     path('logout/', views.signout, name='logout'),
+    path('search-expenses', csrf_exempt(views.search_expenses),
+         name="search_expenses"),
     path('signin/', views.signin, name='signin')
 ]

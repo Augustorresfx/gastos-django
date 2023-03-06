@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    
+    {{error}}
+    <main class="mt-5 pt-3">
+        <div class="row">
+            <div class="col-md-4 offset-md-4 mt-5">
+                <form method="POST" class="card card-body ">
+                    <h1 class="text-center">
+                        Crear expensa
+                    </h1>
+
+                    {{error}}
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="title">Titulo:</label>
+                        <input type="text" name="title" id="title"
+                        class="form-control" placeholder="Escribe un titulo para la expensa" value="{{expensa.title}}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="price">Total:</label>
+                        <input type="number" name="price" id="price"
+                        class="form-control" placeholder="Escribe el total" value="{{expensa.price}}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description">Descripción:</label>
+                        <input type="text" name="description" id="description"
+                        class="form-control" placeholder="Escribe la descripción" value="{{expensa.description}}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="client">Cliente:</label>
+                        {{ form.client }}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Crear
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+{% endblock %}

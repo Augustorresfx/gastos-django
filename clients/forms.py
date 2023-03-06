@@ -1,7 +1,7 @@
 from django.forms import ModelForm
 from django import forms
 
-from .models import Product, Category
+from .models import Product, Category, Gasto
 
 class ClientFilterForm(ModelForm):
     class Meta:
@@ -10,10 +10,20 @@ class ClientFilterForm(ModelForm):
             'title',
         ]
 
+class GastoForm(ModelForm):
+    class Meta:
+        model = Gasto
+        fields = ['title', 'price', 'client', 'description']
+        widgets = {
+            'client': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+        }
+
 class ClientForm(ModelForm):
     class Meta:
         model = Product
-        fields = ['title', 'price', 'category', 'alumn', 'mechanic', 'fuel', 'takeoff_place', 
+        fields = ['title', 'category', 'pilot', 'alumn', 'mechanic', 'fuel', 'takeoff_place', 
                   'landing_place', 'engine_ignition_1', 'engine_ignition_2', 'takeoff_time', 'landing_time', 
                   'engine_cut_1', 'engine_cut_2', 'number_of_landings', 'number_of_splashdowns', 'start_up_cycles', 'fuel_on_landing', 
                   'fuel_per_flight', 'water_release_cycles', 'water_release_amount', 'cycles_with_external_load', 
@@ -21,6 +31,9 @@ class ClientForm(ModelForm):
                   ]
         widgets = {
             'category': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'pilot': forms.Select(attrs={
                 'class': 'form-select'
             }),
             'mechanic': forms.Select(attrs={

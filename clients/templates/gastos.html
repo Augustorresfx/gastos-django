@@ -1,22 +1,43 @@
 {% extends 'base.html' %}
 
+
 {% block content %}
 {% load app_extras %}
+{% load static %}
 <main class="mt-5 pt-3">
 <div class="container-fluid px-4">
   <div class="row g-3 my-2">
   <div class="row my-5">
-      <h1 class="fs-4 mb-3">Panel admin</h1>
+      <h1 class="fs-4 mb-3">Operaciones</h1>
+     
+      <div class="d-flex justify-content-start align-items-center my-2">
+        <a href="/gastos/create/" class="btn btn-outline-primary d-flex justify-content-center align-items-start mx-2">
+          <span class="material-icons-outlined ">
+            add 
+            </span>
+          <span>Crear operación</span>
+        </a>
+
+        <a href="{% url 'export_excel' %}" class="btn btn-outline-primary my-2 d-flex justify-content-center align-items-center mx-2">
+          <span class="material-icons-outlined ">
+            download 
+            </span>
+            <span>Export excel</span>
+        </a>
+      </div>
       
 
+
+   
       <div class="table-responsive">
-        
+      
           <table class="table bg-white rounded shadow-sm">
               <thead>
                 <tr>
                   <th scope="col">ID</th>
                   <th scope="col">Nombre</th>
                   <th scope="col">Costo</th>
+                  <th scope="col">Piloto</th>
                   <th scope="col">Categoría</th>
                   <th scope="col">Creador</th>
                   <th scope="col">Fecha</th>
@@ -41,11 +62,13 @@
                 </tr>
               </thead>
               <tbody>
+                
                 {% for product in pages %}
                 <tr>
                     <td>{{ product.id }}</td>
                     <td>{{ product.title }}</td>
                     <td>${{ product.price }}</td>
+                    <td>{{ product.pilot }}</td>
                     <td>{{ product.category }}</td>
                     <td>{{ product.user.username }}</td>
                     <td>{{ product.created }}</td>
@@ -88,8 +111,12 @@
                 {% endfor %}
               </tbody>
           </table>
-      </div>
-
+      </div>  
+      <div class="app-table">
+      <div class="table-output">
+<tbody id="table-body" class="table-body"> </tbody></div>
+    </div>
+  </div>
 
         <nav aria-label="Page navigation example">
         <ul class="pagination justify-content-end">
@@ -135,7 +162,10 @@
   </div>
   </div>
 </div>
-  
 
+
+
+<script src="{% static 'js/dashboard.js' %}"></script>
+<script src="{% static 'js/search.js' %}"></script>
 
 {% endblock %}

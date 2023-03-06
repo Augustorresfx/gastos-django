@@ -7,6 +7,8 @@ class Category(models.Model):
     title = models.CharField(max_length=100)
     expiration = models.DateField()
     
+    
+
     class Meta:
         ordering = ('title',)
         verbose_name_plural = 'Categories'
@@ -16,6 +18,13 @@ class Category(models.Model):
 class Pilot(models.Model):
     name = models.CharField(max_length=100)
     expiration = models.DateField()
+
+    
+    class Meta:
+        ordering = ('name',)
+        verbose_name_plural = 'Pilots'
+    def __str__(self):
+        return self.name
     
 class Mechanic(models.Model):
     name = models.CharField(max_length=100)
@@ -56,10 +65,21 @@ class Client(models.Model):
     def __str__(self):
         return self.name
     
-class Product(models.Model):
-    category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)
+class Gasto(models.Model):
     title = models.CharField(max_length=100)
     price = models.IntegerField(max_length=50)
+    created = models.DateTimeField(auto_now_add=True)
+    client = models.ForeignKey(Client, related_name='gastos', on_delete=models.CASCADE)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.title
+
+
+class Product(models.Model):
+    category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)
+    pilot = models.ForeignKey(Pilot, related_name='products', on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
     created = models.DateTimeField(auto_now_add=True)
     datecompleted = models.DateTimeField(null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -75,14 +95,14 @@ class Product(models.Model):
     engine_cut_1 = models.TimeField()
     engine_cut_2 = models.TimeField()
     number_of_landings = models.IntegerField(max_length=100)
-    number_of_splashdowns = models.IntegerField(max_length=100)
-    start_up_cycles = models.IntegerField(max_length=100)
+    number_of_splashdowns = models.IntegerField(max_length=100, blank=True)
+    start_up_cycles = models.FloatField(max_length=100)
     fuel_on_landing = models.IntegerField(max_length=100)
     fuel_per_flight = models.IntegerField(max_length=100)
-    water_release_cycles = models.IntegerField(max_length=100)
-    water_release_amount = models.IntegerField(max_length=100)
-    cycles_with_external_load = models.IntegerField(max_length=100)
-    weight_with_external_load = models.IntegerField(max_length=100)
+    water_release_cycles = models.IntegerField(max_length=100, blank=True)
+    water_release_amount = models.IntegerField(max_length=100, blank=True)
+    cycles_with_external_load = models.IntegerField(max_length=100, blank=True)
+    weight_with_external_load = models.IntegerField(max_length=100, blank=True)
     reason_of_flight = models.ForeignKey(Reason, related_name='products', on_delete=models.CASCADE)
     other_reason = models.CharField(max_length=100, blank=True)
     operator = models.ForeignKey(Operator, related_name='products', on_delete=models.CASCADE)
@@ -90,5 +110,6 @@ class Product(models.Model):
     loaded_fuel = models.IntegerField(max_length=100)
     operation_note = models.TextField(blank=True)
     maintenance_note = models.TextField(blank=True)
+
     def __str__(self):
          return self.title + "- by " + self.user.username
