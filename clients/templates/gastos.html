@@ -4,29 +4,53 @@
 {% block content %}
 {% load app_extras %}
 {% load static %}
+{% load crispy_forms_tags %}
 <main class="mt-5 pt-3">
 <div class="container-fluid px-4">
-  <div class="row g-3 my-2">
-  <div class="row my-5">
+
       <h1 class="fs-4 mb-3">Operaciones</h1>
      
       <div class="d-flex justify-content-start align-items-center my-2">
-        <a href="/gastos/create/" class="btn btn-outline-primary d-flex justify-content-center align-items-start mx-2">
+        <a href="/gastos/create/" class="btn btn-outline-primary my-2 d-flex justify-content-center align-items-center mx-2">
           <span class="material-icons-outlined ">
             add 
             </span>
           <span>Crear operación</span>
         </a>
 
-        <a href="{% url 'export_excel' %}" class="btn btn-outline-primary my-2 d-flex justify-content-center align-items-center mx-2">
+        <a href="{% url 'send_mail_with_excel' %}" class="btn btn-outline-primary my-2 d-flex justify-content-center align-items-center mx-2">
           <span class="material-icons-outlined ">
             download 
             </span>
             <span>Export excel</span>
         </a>
+        <a href="#layouts" data-bs-toggle="collapse" class="btn btn-outline-primary my-2 d-flex justify-content-center align-items-center mx-2">
+          <span class="material-icons-outlined ">
+            filter_list 
+            </span>
+            <span>Expandir filtros</span>
+          </a>
+  
+
+                
+         
       </div>
       
+ <div class="collapse" id="layouts">
+         
 
+                      <form method="GET" action="{% url 'gastos' %}">
+     
+             
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        {{ form.title|crispy }}
+                        <button class="btn btn-sm btn-outline-primary" type="submit">Filtrar</button>
+                 
+                
+                      </form>
+         
+                </div>
 
    
       <div class="table-responsive">

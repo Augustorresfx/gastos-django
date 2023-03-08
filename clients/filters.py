@@ -3,15 +3,23 @@ from django_filters import DateFromToRangeFilter
 from .models import Product, Gasto
 from .forms import forms
 
+
 class ProductFilter(django_filters.FilterSet):
+    def __init__(self, *args, **kwargs):
+        super(ProductFilter, self).__init__(*args, **kwargs)
+        self.filters['title'].label = 'Titulo'
+        self.filters['category'].label = 'Aeronave'
+        self.filters['pilot'].label = 'Piloto'
+        self.filters['operator'].label = 'Operador'
+        self.filters['mechanic'].label = 'Mecánico'
+
+
     class Meta:
         model = Product
-        fields = ['title', 'category', 'pilot', 'alumn', 'mechanic', 'fuel', 'takeoff_place', 
-                  'landing_place', 'engine_ignition_1', 'engine_ignition_2', 'takeoff_time', 'landing_time', 
-                  'engine_cut_1', 'engine_cut_2', 'number_of_landings', 'number_of_splashdowns', 'start_up_cycles', 'fuel_on_landing', 
-                  'fuel_per_flight', 'water_release_cycles', 'water_release_amount', 'cycles_with_external_load', 
-                  'weight_with_external_load', 'reason_of_flight', 'other_reason', 'operator', 'client', 'loaded_fuel', 'operation_note', 'maintenance_note'
+        
+        fields = [ 'title', 'category', 'pilot', 'operator', 'mechanic'
                   ]
+   
         widgets = {
             'pilot': forms.Select(attrs={
                 'class': 'form-select'
@@ -27,6 +35,10 @@ class ProductFilter(django_filters.FilterSet):
             })
 
         }
+
+def __init__(self, *args, **kwargs):
+    super(ProductFilter, self).__init__(*args, **kwargs)
+    self.filters['title'].label="Titulo"
 
 class GastosFilter(django_filters.FilterSet):
     class Meta:

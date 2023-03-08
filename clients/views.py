@@ -17,7 +17,18 @@ import openpyxl
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import Alignment,Border,Font,PatternFill,Side
 from .models import Gasto
+import os
+from io import BytesIO
+import smtplib
+from email.mime.text import MIMEText
 
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
+from email.mime.base import MIMEBase
+from email import encoders
+from dotenv import load_dotenv
+
+load_dotenv()
 # Create your views here.
 def home(request):
     return render(request, 'home.html')
@@ -66,10 +77,12 @@ def gastos(request):
 
     filtered_clients = ProductFilter(
         request.GET, 
-        queryset=Product.objects.all()
+        queryset=Product.objects.all(),
+
         )
+
     context['clients'] = filtered_clients.qs
-    paginated_filter = Paginator(filtered_clients.qs, 3)
+    paginated_filter = Paginator(filtered_clients.qs, 1)
     page_number = request.GET.get("page")
     filter_pages = paginated_filter.get_page(page_number)
    
@@ -178,6 +191,68 @@ def gasto_detail(request, product_id):
         except ValueError:
             return render(request, 'gastos_detail.html', {'client': product, 'form': form, 'error': 'Error actualizando el cliente'})
 
+def send_mail_with_excel(excel_file):
+
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=Reporte_Diario' + \
+    str(datetime.now())+'.xlsx'
+    path = "C:\\Users\\augus\\Downloads\\backend-python-master\\backend-python-master\\clients\\excel\\Reporte_diario.xlsx"
+    wb = load_workbook(path)
+    wb.iso_dates = True
+    sheet = wb.active
+    max_col = sheet.max_column
+
+    
+    products = Product.objects.all()   
+    
+
+    for product in products:
+        timeformat = "%H:%M:%S"
+        delta = datetime.strptime(str(product.landing_time), timeformat) - datetime.strptime(str(product.takeoff_time), timeformat)
+        
+        data = [product.takeoff_place, product.created.strftime("%d %m %y"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.category.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', '', '', '', '', '', '', product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2]
+    
+        sheet.append(data)
+
+    excel_file = BytesIO()
+    wb.save(excel_file)
+    excel_file.seek(0)
+
+    msg = MIMEMultipart()
+    msg['From'] = 'no.reply.wings@gmail.com'
+    msg['To'] = ', '.join(['augustorresfx@gmail.com',])
+    msg['Subject'] = 'Su reporte del día'
+
+    part = MIMEBase('application', 'octet-stream')
+    part.set_payload((excel_file).read())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', 'attachment', filename='Reporte_Diario' + \
+    str(datetime.now())+'.xlsx')
+    msg.attach(part)
+
+    html = """\
+        <html>
+        <head></head>
+        <body>
+            <h1>Estimado/a,</h1>
+            <h2>Adjunto encontrará el archivo de Excel con los datos solicitados:</h2>
+        </body>
+        </html>
+        """
+    msg.attach(MIMEText(html, 'html'))
+
+    # Conectar y enviar el correo electrónico
+    smtp_server = 'smtp.gmail.com'  # Cambia esto a tu servidor SMTP
+    smtp_port = 587  # Cambia esto al puerto de tu servidor SMTP
+    smtp_user = os.getenv('SMTP_USER')
+    smtp_password = os.getenv('SMTP_PASSWORD')  # Cambia esto a tu contraseña SMTP
+    smtp_connection = smtplib.SMTP(smtp_server, smtp_port)
+    smtp_connection.starttls()
+    smtp_connection.login(smtp_user, smtp_password)
+    smtp_connection.sendmail(smtp_user, msg['To'], msg.as_string())
+    smtp_connection.quit()
+
+    return redirect('gastos')
 
 @login_required
 def export_excel(request):
@@ -198,7 +273,7 @@ def export_excel(request):
         timeformat = "%H:%M:%S"
         delta = datetime.strptime(str(product.landing_time), timeformat) - datetime.strptime(str(product.takeoff_time), timeformat)
         
-        data = [product.takeoff_place, product.created.strftime("%d %m %y"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.category.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', '', '', product.price, '', '', '', '', product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2]
+        data = [product.takeoff_place, product.created.strftime("%d %m %y"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.category.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', '', '', '', '', '', '', product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2]
     
         sheet.append(data)
 
