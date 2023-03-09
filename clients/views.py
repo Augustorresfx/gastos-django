@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.db import IntegrityError
 from .forms import ClientForm, ClientFilterForm, GastoForm
-from .models import Product, Category
+from .models import Operacion, Aeronave, Impuesto
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from .filters import ProductFilter
@@ -62,10 +62,10 @@ def signup(request):
 def search_expenses(request):
     if request.method == 'POST':
         search_str = json.loads(request.body).get('searchText')
-        expenses = Product.objects.filter(
-            price__istartswith=search_str, ) | Product.objects.filter(
-            created__istartswith=search_str, ) | Product.objects.filter(
-            description__icontains=search_str, ) | Product.objects.filter(
+        expenses = Operacion.objects.filter(
+            price__istartswith=search_str, ) | Operacion.objects.filter(
+            created__istartswith=search_str, ) | Operacion.objects.filter(
+            description__icontains=search_str, ) | Operacion.objects.filter(
             category__icontains=search_str, )
         data = expenses.values()
         return JsonResponse(list(data), safe=False)
@@ -77,7 +77,7 @@ def gastos(request):
 
     filtered_clients = ProductFilter(
         request.GET, 
-        queryset=Product.objects.all(),
+        queryset=Operacion.objects.all(),
 
         )
 
@@ -88,7 +88,7 @@ def gastos(request):
    
     context['form'] = filtered_clients.form
     context['pages'] = filter_pages
-    categories = Category.objects.all()
+    categories = Aeronave.objects.all()
    
     return render(request, 'gastos.html', context=context)
 
@@ -96,23 +96,19 @@ def gastos(request):
 def expensas(request):
   
     context = {}   
-
-
     context['clients'] = Gasto.objects.all()
     paginated_filter = Paginator(Gasto.objects.all(), 3)
     page_number = request.GET.get("page")
     filter_pages = paginated_filter.get_page(page_number)
-   
-
     context['pages'] = filter_pages
-    categories = Category.objects.all()
+    categories = Aeronave.objects.all()
    
     return render(request, 'expensas.html', context=context)
 
 @login_required
 def create_expensa(request):
     if request.method == 'GET':
-        categories = Category.objects.all()
+        categories = Aeronave.objects.all()
         return render(request, 'create_expensa.html', {
             'form': GastoForm,
             'categories': categories,
@@ -133,7 +129,7 @@ def create_expensa(request):
 @login_required
 def create_gasto(request):
     if request.method == 'GET':
-        categories = Category.objects.all()
+        categories = Aeronave.objects.all()
         return render(request, 'create_gasto.html', {
             'form': ClientForm,
             'categories': categories,
@@ -177,19 +173,19 @@ def delete_expensa(request, gasto_id):
 
 
 @login_required
-def gasto_detail(request, product_id):
+def gasto_detail(request, operacion_id):
     if request.method == 'GET':
-        product = get_object_or_404(Product, pk=product_id, user=request.user)
+        product = get_object_or_404(Operacion, pk=operacion_id, user=request.user)
         form = ClientForm(instance=product)
         return render(request, 'gasto_detail.html', {'client': product, 'form': form})
     else:
         try:
-            product = get_object_or_404(Product, pk=product_id)
+            product = get_object_or_404(Operacion, pk=operacion_id)
             form = ClientForm(request.POST, instance=product)
             form.save()
             return redirect('gastos')
         except ValueError:
-            return render(request, 'gastos_detail.html', {'client': product, 'form': form, 'error': 'Error actualizando el cliente'})
+            return render(request, 'gasto_detail.html', {'client': product, 'form': form, 'error': 'Error actualizando el cliente'})
 
 def send_mail_with_excel(excel_file):
 
@@ -203,7 +199,7 @@ def send_mail_with_excel(excel_file):
     max_col = sheet.max_column
 
     
-    products = Product.objects.all()   
+    products = Operacion.objects.all()   
     
 
     for product in products:
@@ -266,14 +262,14 @@ def export_excel(request):
     max_col = sheet.max_column
 
     
-    products = Product.objects.all()   
+    products = Operacion.objects.all()   
     
 
     for product in products:
         timeformat = "%H:%M:%S"
         delta = datetime.strptime(str(product.landing_time), timeformat) - datetime.strptime(str(product.takeoff_time), timeformat)
         
-        data = [product.takeoff_place, product.created.strftime("%d %m %y"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.category.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', '', '', '', '', '', '', product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2]
+        data = [product.takeoff_place, product.created.strftime("%d %m %y"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', '', '', '', '', '', '', product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2]
     
         sheet.append(data)
 
@@ -284,7 +280,7 @@ def export_excel(request):
 
 @login_required
 def delete_client(request, product_id):
-    product = get_object_or_404(Product, pk=product_id)
+    product = get_object_or_404(Operacion, pk=product_id)
     if request.method == 'POST':
         product.delete()
         return redirect('gastos')

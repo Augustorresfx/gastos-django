@@ -6,7 +6,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 <main class="mt-5 pt-3">
-<div class="container-fluid px-4">
+<div class="container-fluid px-4 mt-5">
 
       <h1 class="fs-4 mb-3">Operaciones</h1>
      
@@ -91,7 +91,7 @@
                     <td>{{ product.id }}</td>
                     <td>{{ product.title }}</td>
                     <td>{{ product.pilot }}</td>
-                    <td>{{ product.category }}</td>
+                    <td>{{ product.aeronave }}</td>
                     <td>{{ product.user.username }}</td>
                     <td>{{ product.created }}</td>
 
@@ -186,7 +186,21 @@
 </div>
 
 
-
+<script>
+  var precioSlider = new rSlider({
+    target: '#precio-slider',
+    values: [0, 5000],
+    range: true,
+    tooltip: true,
+    scale: false,
+    labels: false,
+    set: [$('input[name="precio_0"]').val(), $('input[name="precio_1"]').val()],
+    onChange: function (vals) {
+      $('input[name="precio_0"]').val(vals[0]);
+      $('input[name="precio_1"]').val(vals[1]);
+    }
+  });
+</script>
 <script src="{% static 'js/dashboard.js' %}"></script>
 <script src="{% static 'js/search.js' %}"></script>
 

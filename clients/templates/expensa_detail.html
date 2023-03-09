@@ -8,7 +8,7 @@
             <div class="col-md-4 offset-md-4 mt-5">
                 <form method="POST" class="card card-body ">
                     <h1 class="text-center">
-                        Crear expensa
+                        Editar expensa
                     </h1>
 
                     {{error}}
@@ -17,28 +17,51 @@
                     <div class="mb-3">
                         <label for="title">Titulo:</label>
                         <input type="text" name="title" id="title"
-                        class="form-control" placeholder="Escribe un titulo para la expensa" value="{{expensa.title}}">
+                        class="form-control" placeholder="Escribe un titulo para la expensa" value="{{ expensa.title }}">
                     </div>
                     
                     <div class="mb-3">
-                        <label for="price">Total:</label>
-                        <input type="number" name="price" id="price"
-                        class="form-control" placeholder="Escribe el total" value="{{expensa.price}}">
+                        <label for="price">Subtotal:</label>
+                        <input type="number" name="subtotal" id="subtotal"
+                        class="form-control" placeholder="Escribe el subtotal" value="{{ expensa.subtotal }}">
                     </div>
 
                     <div class="mb-3">
                         <label for="description">Descripción:</label>
                         <input type="text" name="description" id="description"
-                        class="form-control" placeholder="Escribe la descripción" value="{{expensa.description}}">
+                        class="form-control" placeholder="Escribe la descripción" value="{{ expensa.description }}">
                     </div>
                     
                     <div class="mb-3">
-                        <label for="client">Cliente:</label>
-                        {{ form.client }}
+                        <label for="description">Fecha de emisión del comprobante:</label>
+                        <input type="date" name="emision" id="emision"
+                        class="form-control" placeholder="Fecha de emisión" value="{{ expensa.emision|date:"Y-m-d" }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description">Cuit:</label>
+                        <input type="text" name="cuit" id="cuit"
+                        class="form-control" placeholder="Escribe el cuit" value="{{ expensa.cuit }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description">Rubro:</label>
+                        <input type="text" name="rubro" id="rubro"
+                        class="form-control" placeholder="Escribe el rubro" value="{{ expensa.rubro }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="client">Impuesto:</label>
+                        {{ form.impuesto }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="client">Categoría:</label>
+                        {{ form.categoria }}
                     </div>
 
                     <button type="submit" class="btn btn-primary">
-                        Crear
+                        Editar
                     </button>
                 </form>
             </div>
