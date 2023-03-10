@@ -53,7 +53,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_filters',
     'crispy_forms',
-    "crispy_bootstrap5"
+    'crispy_bootstrap5',
+    'django_range_slider'
 ]
 
 MIDDLEWARE = [

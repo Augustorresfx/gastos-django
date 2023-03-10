@@ -21,9 +21,9 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label for="price">Total:</label>
-                        <input type="number" name="price" id="price"
-                        class="form-control" placeholder="Escribe el nombre del cliente">
+                        <label for="price">Subtotal:</label>
+                        <input type="number" name="subtotal" id="subtotal"
+                        class="form-control" placeholder="Escribe el subtotal">
                     </div>
 
                     <div class="mb-3">
@@ -33,8 +33,31 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label for="client">Cliente:</label>
-                        {{ form.client }}
+                        <label for="description">Fecha de emisión del comprobante:</label>
+                        <input type="date" name="emision" id="emision"
+                        class="form-control" placeholder="Fecha de emisión">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description">Cuit:</label>
+                        <input type="text" name="cuit" id="cuit"
+                        class="form-control" placeholder="Escribe el cuit">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description">Rubro:</label>
+                        <input type="text" name="rubro" id="rubro"
+                        class="form-control" placeholder="Escribe el rubro">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="client">Impuesto:</label>
+                        {{ form.impuesto }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="client">Categoría:</label>
+                        {{ form.categoria }}
                     </div>
 
                     <button type="submit" class="btn btn-primary">
