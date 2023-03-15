@@ -12,6 +12,8 @@ from datetime import timedelta, datetime
 from ..models import Operacion
 from openpyxl import load_workbook
 from pathlib import Path
+from datetime import date
+from django.utils import timezone
 
 load_dotenv()
 def schedule_api():
@@ -25,12 +27,13 @@ def schedule_api():
     wb.iso_dates = True
     sheet = wb.active
     max_col = sheet.max_column
-
+    hoy = timezone.now().date()  # Obtiene la fecha actual
+    objetos_hoy = Operacion.objects.filter(created__date=hoy)
     
-    products = Operacion.objects.all()   
+    objetos_todos = Operacion.objects.all()
     
 
-    for product in products:
+    for product in objetos_hoy:
         timeformat = "%H:%M:%S"
         delta = datetime.strptime(str(product.landing_time), timeformat) - datetime.strptime(str(product.takeoff_time), timeformat)
         

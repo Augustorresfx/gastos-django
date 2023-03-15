@@ -10,7 +10,7 @@ from django.core.paginator import Paginator
 from .filters import ProductFilter
 from django.http import HttpResponse
 import xlwt
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date, time
 from django.http import JsonResponse
 import json
 import openpyxl
@@ -26,8 +26,11 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 from email.mime.base import MIMEBase
 from email import encoders
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
+from django.utils.formats import date_format
+from django.utils.dateparse import parse_date
+from django.utils import timezone
 load_dotenv()
 # Create your views here.
 def home(request):
@@ -196,16 +199,18 @@ def send_mail_with_excel(excel_file):
     sheet = wb.active
     max_col = sheet.max_column
 
-    
-    products = Operacion.objects.all()   
-    
+    # Obtener fecha y hora actual en la zona horaria del proyecto
+    hoy = timezone.now().date()  # Obtiene la fecha actual
+    objetos_hoy = Operacion.objects.filter(created__date=hoy)
 
-    for product in products:
+    objetos_todos = Operacion.objects.all()
+
+    for product in objetos_hoy:
         timeformat = "%H:%M:%S"
         delta = datetime.strptime(str(product.landing_time), timeformat) - datetime.strptime(str(product.takeoff_time), timeformat)
         
         data = [product.takeoff_place, product.created.strftime("%d %m %y"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', '', '', '', '', '', '', product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2]
-    
+   
         sheet.append(data)
 
     excel_file = BytesIO()
