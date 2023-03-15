@@ -3,8 +3,17 @@
 
 {% block content %}
 {% load app_extras %}
+
 {% load static %}
 {% load crispy_forms_tags %}
+
+<head>
+  <link rel="stylesheet" href="{% static 'css/custom_slider.css' %}">
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
 <main class="mt-5 pt-3">
 <div class="container-fluid px-4 mt-5">
 
@@ -43,10 +52,8 @@
      
              
                         {% csrf_token %}
-                        {{ form|crispy }}
-                        {{ form.title|crispy }}
-                        <button class="btn btn-sm btn-outline-primary" type="submit">Filtrar</button>
-                 
+                        {% crispy filter %}
+                       
                 
                       </form>
          
@@ -186,22 +193,8 @@
 </div>
 
 
-<script>
-  var precioSlider = new rSlider({
-    target: '#precio-slider',
-    values: [0, 5000],
-    range: true,
-    tooltip: true,
-    scale: false,
-    labels: false,
-    set: [$('input[name="precio_0"]').val(), $('input[name="precio_1"]').val()],
-    onChange: function (vals) {
-      $('input[name="precio_0"]').val(vals[0]);
-      $('input[name="precio_1"]').val(vals[1]);
-    }
-  });
-</script>
+
 <script src="{% static 'js/dashboard.js' %}"></script>
-<script src="{% static 'js/search.js' %}"></script>
+<script src="{% static 'js/custom_slider.js' %}"></script>
 
 {% endblock %}

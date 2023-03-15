@@ -7,7 +7,7 @@ from .forms import ClientForm, ClientFilterForm, GastoForm
 from .models import Operacion, Aeronave, Impuesto
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from .filters import ProductFilter
+from .filters import ProductFilter, FuelFilter
 from django.http import HttpResponse
 import xlwt
 from datetime import timedelta, datetime
@@ -74,7 +74,7 @@ def search_expenses(request):
 def gastos(request):
   
     context = {}   
-
+    
     filtered_clients = ProductFilter(
         request.GET, 
         queryset=Operacion.objects.all(),
@@ -82,11 +82,11 @@ def gastos(request):
         )
 
     context['clients'] = filtered_clients.qs
-    paginated_filter = Paginator(filtered_clients.qs, 1)
+    paginated_filter = Paginator(filtered_clients.qs, 2)
     page_number = request.GET.get("page")
     filter_pages = paginated_filter.get_page(page_number)
    
-    context['form'] = filtered_clients.form
+    context['filter'] = filtered_clients.form
     context['pages'] = filter_pages
     categories = Aeronave.objects.all()
    
@@ -192,7 +192,7 @@ def send_mail_with_excel(excel_file):
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename=Reporte_Diario' + \
     str(datetime.now())+'.xlsx'
-    path = "C:\\Users\\augus\\Downloads\\backend-python-master\\backend-python-master\\clients\\excel\\Reporte_diario.xlsx"
+    path = "C:\\Users\\augus\\Downloads\\backend-python-master\\backend-python-master\\clients\\static\\Reporte_diario.xlsx"
     wb = load_workbook(path)
     wb.iso_dates = True
     sheet = wb.active
@@ -206,7 +206,7 @@ def send_mail_with_excel(excel_file):
         timeformat = "%H:%M:%S"
         delta = datetime.strptime(str(product.landing_time), timeformat) - datetime.strptime(str(product.takeoff_time), timeformat)
         
-        data = [product.takeoff_place, product.created.strftime("%d %m %y"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.category.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', '', '', '', '', '', '', product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2]
+        data = [product.takeoff_place, product.created.strftime("%d %m %y"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', '', '', '', '', '', '', product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2]
     
         sheet.append(data)
 
@@ -255,7 +255,7 @@ def export_excel(request):
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename=Reporte_Diario' + \
         str(datetime.now())+'.xlsx'
-    path = "C:\\Users\\augus\\Downloads\\backend-python-master\\backend-python-master\\clients\\excel\\Reporte_diario.xlsx"
+    path = "C:\\Users\\augus\\Downloads\\backend-python-master\\backend-python-master\\clients\\static\\Reporte_diario.xlsx"
     wb = load_workbook(path)
     wb.iso_dates = True
     sheet = wb.active
