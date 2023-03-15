@@ -192,7 +192,7 @@ def send_mail_with_excel(excel_file):
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename=Reporte_Diario' + \
     str(datetime.now())+'.xlsx'
-    path = "C:\\Users\\augus\\Downloads\\backend-python-master\\backend-python-master\\clients\\static\\Reporte_diario.xlsx"
+    path = "www.gastos-django.onrender.com/static/Reporte_diario.xlsx"
     wb = load_workbook(path)
     wb.iso_dates = True
     sheet = wb.active
