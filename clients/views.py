@@ -7,7 +7,7 @@ from .forms import ClientForm, ClientFilterForm, GastoForm
 from .models import Operacion, Aeronave, Impuesto
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from .filters import ProductFilter, FuelFilter
+from .filters import ProductFilter
 from django.http import HttpResponse
 import xlwt
 from datetime import timedelta, datetime
@@ -82,13 +82,12 @@ def gastos(request):
         )
 
     context['clients'] = filtered_clients.qs
-    paginated_filter = Paginator(filtered_clients.qs, 2)
+    paginated_filter = Paginator(filtered_clients.qs, 10)
     page_number = request.GET.get("page")
     filter_pages = paginated_filter.get_page(page_number)
    
-    context['filter'] = filtered_clients.form
+    context['form'] = filtered_clients.form
     context['pages'] = filter_pages
-    categories = Aeronave.objects.all()
    
     return render(request, 'gastos.html', context=context)
 
@@ -101,17 +100,15 @@ def expensas(request):
     page_number = request.GET.get("page")
     filter_pages = paginated_filter.get_page(page_number)
     context['pages'] = filter_pages
-    categories = Aeronave.objects.all()
    
     return render(request, 'expensas.html', context=context)
 
 @login_required
 def create_expensa(request):
     if request.method == 'GET':
-        categories = Aeronave.objects.all()
+
         return render(request, 'create_expensa.html', {
             'form': GastoForm,
-            'categories': categories,
         })
     else:
         try:
@@ -129,10 +126,10 @@ def create_expensa(request):
 @login_required
 def create_gasto(request):
     if request.method == 'GET':
-        categories = Aeronave.objects.all()
+
         return render(request, 'create_gasto.html', {
             'form': ClientForm,
-            'categories': categories,
+
         })
     else:
         try:
@@ -188,11 +185,12 @@ def gasto_detail(request, operacion_id):
             return render(request, 'gasto_detail.html', {'client': product, 'form': form, 'error': 'Error actualizando el cliente'})
 
 def send_mail_with_excel(excel_file):
-
+    module_dir = os.path.dirname(__file__)   #get current directory
+    file_path = os.path.join(module_dir, 'staticfiles/Reporte_diario.xlsx')   #full path to text.
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename=Reporte_Diario' + \
     str(datetime.now())+'.xlsx'
-    path = "/opt/render/project/src/staticfiles/Reporte_diario.xlsx"
+    path = file_path
     wb = load_workbook(path)
     wb.iso_dates = True
     sheet = wb.active
