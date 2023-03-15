@@ -186,7 +186,7 @@ def gasto_detail(request, operacion_id):
 
 def send_mail_with_excel(excel_file):
     module_dir = os.path.dirname(__file__)   #get current directory
-    file_path = os.path.join(module_dir, 'staticfiles/Reporte_diario.xlsx')   #full path to text.
+    file_path = os.path.join(module_dir, 'static/Reporte_diario.xlsx')   #full path to text.
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename=Reporte_Diario' + \
     str(datetime.now())+'.xlsx'

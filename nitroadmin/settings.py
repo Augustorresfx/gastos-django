@@ -53,7 +53,9 @@ INSTALLED_APPS = [
     'django_filters',
     'crispy_forms',
     'crispy_bootstrap5',
-    'django_range_slider'
+    'django_range_slider',
+    'apscheduler',
+
 ]
 
 MIDDLEWARE = [
