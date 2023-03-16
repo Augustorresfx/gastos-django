@@ -28,6 +28,7 @@ class Piloto(models.Model):
     
 class Mecanico(models.Model):
     name = models.CharField(max_length=100)
+    expiration = models.DateField()
     
     class Meta:
         ordering = ('name',)

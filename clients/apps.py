@@ -7,3 +7,6 @@ class ClientsConfig(AppConfig):
     def ready(self):
         from .jobs import updater
         updater.start()
+        updater.notificar_piloto()
+        updater.notificar_aeronave()
+        updater.notificar_mecanico()
