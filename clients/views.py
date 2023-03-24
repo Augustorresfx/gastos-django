@@ -262,7 +262,9 @@ def export_excel(request):
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename=Reporte_Diario' + \
         str(datetime.now())+'.xlsx'
-    path = "C:\\Users\\augus\\Downloads\\backend-python-master\\backend-python-master\\clients\\static\\Reporte_diario.xlsx"
+    module_dir = os.path.dirname(__file__)   #get current directory
+    file_path = os.path.join(module_dir, 'static/Reporte_diario.xlsx')   #full path to text.
+    path = file_path
     wb = load_workbook(path)
     wb.iso_dates = True
     sheet = wb.active
@@ -279,8 +281,8 @@ def export_excel(request):
     for product in objetos_todos:
         timeformat = "%H:%M:%S"
         delta = datetime.strptime(str(product.landing_time), timeformat) - datetime.strptime(str(product.takeoff_time), timeformat)
-        combustible_usado = product.fuel - product.fuel_on_landing
-        data = [product.takeoff_place, product.created.strftime("%d %m %y"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', product.fuel, product.fuel_on_landing, combustible_usado, product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.number_of_landings, product.number_of_splashdowns, product.water_release_cycles, product.water_release_amount]
+
+        data = [product.takeoff_place, product.created.strftime("%d %m %y"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.number_of_landings, product.number_of_splashdowns, product.water_release_cycles, product.water_release_amount]
 
         for i, val in enumerate(data):
             sheet.cell(row=row, column=col+i, value=val)
@@ -385,14 +387,14 @@ def create_piloto(request):
     else:
         try:
             
-            form = AeronaveForm(request.POST)
+            form = PilotoForm(request.POST)
             new_client = form.save(commit=False)
             new_client.user = request.user
             new_client.save()
-            return redirect('aeronaves')
+            return redirect('pilotos')
         except ValueError:
-            return render(request, 'create_aeronave.html', {
-                'form': AeronaveForm,
+            return render(request, 'create_piloto.html', {
+                'form': PilotoForm,
                 'error': 'Please provide valid data'
             })
 

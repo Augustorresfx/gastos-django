@@ -20,11 +20,11 @@
           <span>Crear operación</span>
         </a>
 
-        <a href="{% url 'send_mail_with_excel' %}" class="btn btn-outline-primary my-2 d-flex justify-content-center align-items-center mx-2">
+        <a href="{% url 'export_excel' %}" class="btn btn-outline-primary my-2 d-flex justify-content-center align-items-center mx-2">
           <span class="material-icons-outlined ">
             download 
             </span>
-            <span>Export excel</span>
+            <span>Descargar excel</span>
         </a>
         <a href="#layouts" data-bs-toggle="collapse" class="btn btn-outline-primary my-2 d-flex justify-content-center align-items-center mx-2">
           <span class="material-icons-outlined ">
@@ -91,7 +91,7 @@
                   <th scope="col">Nota de operación</th>
                   <th scope="col">Nota de mantenimiento</th>
                   <th scope="col">Cliente</th>
-                  <th scope="col">Combustible cargado</th>
+
                   <th scope="col">Editar</th>
                   <th scope="col">Eliminar</th>
                 </tr>
@@ -99,6 +99,7 @@
               <tbody>
                 
                 {% for product in pages %}
+                
                 <tr>
                     <td>{{ product.id }}</td>
                     <td>{{ product.title }}</td>
@@ -122,10 +123,10 @@
                     <td>{{ product.engine_cut_2 }}</td>
                     <td>{{ product.number_of_landings }}</td>
 
-                    <td>{{ product.operation_note }}</td>
-                    <td>{{ product.maintenance_note }}</td>
+                    <td><div style="height: 80px; width: 120px; overflow:auto;">{{ product.operation_note }} </div></td>
+                    <td><div style="height: 80px; width: 120px; overflow:auto;">{{ product.maintenance_note }} </div></td>
                     <td>{{ product.client }}</td>
-                    <td>{{ product.fuel }}</td>
+
 
                     <td>
                       <a class="w-10 btn btn-sm btn-primary" href="{% url 'gasto_detail' product.id %}">
@@ -142,7 +143,7 @@
                     </form>
                     </td>
                   </tr>
-            
+               
             
                 {% endfor %}
               </tbody>
