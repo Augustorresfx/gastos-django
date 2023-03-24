@@ -48,7 +48,7 @@
                         {{ form|crispy }}
                         {{ form.title|crispy }}
                       
-                      <div class="d-flex bd-highlight mb-3">
+                      <div class="d-flex bd-highlight">
                         <div class="me-auto p-2 bd-highlight">
                           <button class="btn btn-sm btn-outline-primary" type="submit">Filtrar</button>
                         </div>
@@ -65,7 +65,7 @@
    
       <div class="table-responsive">
       
-          <table class="table bg-white rounded shadow-sm">
+          <table class="table table-striped bg-white rounded shadow-sm">
               <thead>
                 <tr>
                   <th scope="col">ID</th>
@@ -76,7 +76,9 @@
                   <th scope="col">Fecha</th>
                   <th scope="col">Alumno/Instructor</th>
                   <th scope="col">Mecánico</th>
-                  <th scope="col">Combustible</th>
+                  <th scope="col">Combustible usado</th>
+                  <th scope="col">Combustible al despegue</th>
+                  <th scope="col">Combustible al aterrizaje</th>
                   <th scope="col">Lugar de salida</th>
                   <th scope="col">Lugar de aterrizaje</th>
                   <th scope="col">Encendido motor 1</th>
@@ -107,7 +109,9 @@
 
                     <td>{{ product.alumn }}</td>
                     <td>{{ product.mechanic }}</td>
+                    <td>{{ product.used_fuel}}</td>
                     <td>{{ product.fuel }}</td>
+                    <td>{{ product.fuel_on_landing }}</td>
                     <td>{{ product.takeoff_place }}</td>
                     <td>{{ product.landing_place }}</td>
                     <td>{{ product.engine_ignition_1 }}</td>

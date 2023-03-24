@@ -140,6 +140,7 @@ class Operacion(models.Model):
     alumn = models.CharField(max_length=100, blank=True)
     mechanic = models.ForeignKey(Mecanico, related_name='operaciones', on_delete=models.CASCADE)
     fuel = models.IntegerField()
+    used_fuel = models.IntegerField(blank=True)
     takeoff_place = models.CharField(max_length=100)
     landing_place = models.CharField(max_length=100)
     engine_ignition_1 = models.TimeField()
@@ -166,3 +167,21 @@ class Operacion(models.Model):
 
     def __str__(self):
          return self.title + "- by " + self.user.username
+    
+    def calcular_combustible_usado(self):
+       
+        cargado = self.fuel
+
+        remanente = self.fuel_on_landing
+
+        restar = cargado - remanente
+
+
+        used_fuel = restar
+
+        return used_fuel
+
+    def save(self,*args,**kwargs):
+        # are you really sure that you want to save a string ???
+        self.used_fuel = int(self.calcular_combustible_usado())
+        super().save(*args, **kwargs)

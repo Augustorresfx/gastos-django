@@ -19,13 +19,20 @@
 
 <div class="row"> 
   {% for aeronave in aeronaves %}
-    <div class="col-sm-6">
+    <div class="col-sm-6 my-2" >
 
       <div class="card">
         <div class="card-body">
           <h5 class="card-title">{{aeronave.title}}</h5>
-          <p class="card-text">Fecha de vencimiento: {{aeronave.expiration}}.</p>
+          <p class="card-text">Matrícula: {{aeronave.matricula}}</p>
+          <p class="card-text text-danger">Fecha de vencimiento: {{aeronave.expiration}}.</p>
           <a href="{% url 'aeronave_detail' aeronave.id %}" class="btn btn-primary">Ver o editar</a>
+          <form class="my-2" action="{% url 'delete_aeronave' aeronave.id %}" method="POST">
+            {% csrf_token %}
+          <button class="btn btn-danger">
+            Eliminar
+          </button>
+        </form>
         </div>
       </div>
       

@@ -1,7 +1,7 @@
 from django.forms import ModelForm
 from django import forms
 
-from .models import Operacion, Aeronave, Gasto
+from .models import Operacion, Aeronave, Gasto, Piloto, Mecanico
 
 from django import forms
 
@@ -61,3 +61,14 @@ class AeronaveForm(ModelForm):
     class Meta:
         model = Aeronave
         fields = ['title', 'matricula', 'expiration']
+
+class PilotoForm(ModelForm):
+    class Meta:
+        model = Piloto
+        fields = ['name', 'expiration']
+
+class MecanicoForm(ModelForm):
+    class Meta:
+        model = Mecanico
+        fields = ['name', 'expiration']
+        

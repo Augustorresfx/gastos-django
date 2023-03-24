@@ -3,8 +3,8 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.db import IntegrityError
-from .forms import ClientForm, ClientFilterForm, GastoForm, AeronaveForm
-from .models import Operacion, Aeronave, Impuesto
+from .forms import ClientForm, ClientFilterForm, GastoForm, AeronaveForm, PilotoForm, MecanicoForm
+from .models import Operacion, Aeronave, Impuesto, Mecanico, Piloto
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from .filters import ProductFilter
@@ -358,7 +358,129 @@ def delete_aeronave(request, aeronave_id):
         aeronave.delete()
         return redirect('aeronaves')
 
+# FIN AERONAVES
 
+# PILOTOS
+
+@login_required
+def pilotos(request):
+  
+    context = {}   
+    context['pilotos'] = Piloto.objects.all()
+    paginated_filter = Paginator(Aeronave.objects.all(), 10)
+    page_number = request.GET.get("page")
+    filter_pages = paginated_filter.get_page(page_number)
+    context['pages'] = filter_pages
+   
+    return render(request, 'pilotos.html', context=context)
+
+@login_required
+def create_piloto(request):
+    if request.method == 'GET':
+
+        return render(request, 'create_piloto.html', {
+            'form': PilotoForm,
+
+        })
+    else:
+        try:
+            
+            form = AeronaveForm(request.POST)
+            new_client = form.save(commit=False)
+            new_client.user = request.user
+            new_client.save()
+            return redirect('aeronaves')
+        except ValueError:
+            return render(request, 'create_aeronave.html', {
+                'form': AeronaveForm,
+                'error': 'Please provide valid data'
+            })
+
+@login_required
+def piloto_detail(request, piloto_id):
+    if request.method == 'GET':
+        piloto = get_object_or_404(Piloto, pk=piloto_id)
+        form = PilotoForm(instance=piloto)
+        return render(request, 'piloto_detail.html', {'piloto': piloto, 'form': form})
+    else:
+        try:
+            piloto = get_object_or_404(Piloto, pk=piloto_id)
+            form = PilotoForm(request.POST, instance=piloto)
+            form.save()
+            return redirect('pilotos')
+        except ValueError:
+            return render(request, 'piloto_detail.html', {'piloto': piloto, 'form': form, 'error': 'Error actualizando la aeronave'})
+
+
+@login_required
+def delete_piloto(request, piloto_id):
+    piloto = get_object_or_404(Piloto, pk=piloto_id)
+    if request.method == 'POST':
+        piloto.delete()
+        return redirect('pilotos')
+
+# FIN PILOTOS
+
+# MECANICOS
+
+@login_required
+def mecanicos(request):
+  
+    context = {}   
+    context['mecanicos'] = Mecanico.objects.all()
+    paginated_filter = Paginator(Aeronave.objects.all(), 10)
+    page_number = request.GET.get("page")
+    filter_pages = paginated_filter.get_page(page_number)
+    context['pages'] = filter_pages
+   
+    return render(request, 'mecanicos.html', context=context)
+
+@login_required
+def create_mecanico(request):
+    if request.method == 'GET':
+
+        return render(request, 'create_mecanico.html', {
+            'form': MecanicoForm,
+
+        })
+    else:
+        try:
+            
+            form = MecanicoForm(request.POST)
+            new_client = form.save(commit=False)
+            new_client.user = request.user
+            new_client.save()
+            return redirect('mecanicos')
+        except ValueError:
+            return render(request, 'create_mecanico.html', {
+                'form': MecanicoForm,
+                'error': 'Please provide valid data'
+            })
+
+@login_required
+def mecanico_detail(request, mecanico_id):
+    if request.method == 'GET':
+        mecanico = get_object_or_404(Mecanico, pk=mecanico_id)
+        form = MecanicoForm(instance=mecanico)
+        return render(request, 'mecanico_detail.html', {'mecanico': mecanico, 'form': form})
+    else:
+        try:
+            mecanico = get_object_or_404(Mecanico, pk=mecanico_id)
+            form = MecanicoForm(request.POST, instance=mecanico)
+            form.save()
+            return redirect('mecanicos')
+        except ValueError:
+            return render(request, 'mecanico_detail.html', {'mecanico': mecanico, 'form': form, 'error': 'Error actualizando la aeronave'})
+
+
+@login_required
+def delete_mecanico(request, mecanico_id):
+    mecanico = get_object_or_404(Mecanico, pk=mecanico_id)
+    if request.method == 'POST':
+        mecanico.delete()
+        return redirect('mecanicos')
+
+# FIN MECANICOS
 @login_required
 def signout(request):
     logout(request)
