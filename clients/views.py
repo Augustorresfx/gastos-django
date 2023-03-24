@@ -223,7 +223,7 @@ def send_mail_with_excel(excel_file):
 
     msg = MIMEMultipart()
     msg['From'] = 'no.reply.wings@gmail.com'
-    msg['To'] = ', '.join(['augustorresfx@gmail.com', 'gguerra@helicopterosdelpacifico.com'])
+    msg['To'] = ', '.join(['augustorresfx@gmail.com', 'gguerra@helicopterosdelpacifico.com.ar'])
     msg['Subject'] = 'Su reporte del día'
 
     part = MIMEBase('application', 'octet-stream')
