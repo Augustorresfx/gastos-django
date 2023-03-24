@@ -191,8 +191,8 @@ def send_mail_with_excel(excel_file):
     module_dir = os.path.dirname(__file__)   #get current directory
     file_path = os.path.join(module_dir, 'static/Reporte_diario.xlsx')   #full path to text.
     response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = 'attachment; filename=Reporte_Diario' + \
-    str(datetime.now())+'.xlsx'
+    response['Content-Disposition'] = 'attachment; filename=Reporte_Diario ' + \
+    str(timezone.now().date())+'.xlsx'
     path = file_path
     wb = load_workbook(path)
     wb.iso_dates = True
@@ -223,7 +223,7 @@ def send_mail_with_excel(excel_file):
 
     msg = MIMEMultipart()
     msg['From'] = 'no.reply.wings@gmail.com'
-    msg['To'] = ', '.join(['augustorresfx@gmail.com',])
+    msg['To'] = ', '.join(['augustorresfx@gmail.com', 'gguerra@helicopterosdelpacifico.com'])
     msg['Subject'] = 'Su reporte del día'
 
     part = MIMEBase('application', 'octet-stream')
@@ -260,8 +260,8 @@ def send_mail_with_excel(excel_file):
 @login_required
 def export_excel(request):
     response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = 'attachment; filename=Reporte_Diario' + \
-        str(datetime.now())+'.xlsx'
+    response['Content-Disposition'] = 'attachment; filename=Reporte_Diario ' + \
+        str(timezone.now().date())+'.xlsx'
     module_dir = os.path.dirname(__file__)   #get current directory
     file_path = os.path.join(module_dir, 'static/Reporte_diario.xlsx')   #full path to text.
     path = file_path
