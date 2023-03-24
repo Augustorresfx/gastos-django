@@ -29,20 +29,21 @@ def schedule_api():
     max_col = sheet.max_column
     hoy = timezone.now().date()  # Obtiene la fecha actual
     objetos_hoy = Operacion.objects.filter(created__date=hoy)
-    
+
     objetos_todos = Operacion.objects.all()
-    
+
     row = 9  # empezar a agregar en la fila 6
     col = 1  # agregar en la primera columna
-    for product in objetos_hoy:
+    for product in objetos_todos:
         timeformat = "%H:%M:%S"
         delta = datetime.strptime(str(product.landing_time), timeformat) - datetime.strptime(str(product.takeoff_time), timeformat)
-        
-        data = [product.takeoff_place, product.created.strftime("%d %m %y"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', '', '', '', '', '', '', product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2]
+        combustible_usado = product.fuel - product.fuel_on_landing
+        data = [product.takeoff_place, product.created.strftime("%d %m %y"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', product.fuel, product.fuel_on_landing, combustible_usado, product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.number_of_landings, product.number_of_splashdowns, product.water_release_cycles, product.water_release_amount]
 
         for i, val in enumerate(data):
             sheet.cell(row=row, column=col+i, value=val)
         row+=1
+
     excel_file = BytesIO()
     wb.save(excel_file)
     excel_file.seek(0)

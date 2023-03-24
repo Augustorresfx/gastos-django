@@ -56,3 +56,8 @@ class ClientForm(ModelForm):
                 'class': 'form-select'
             })
         }
+
+class AeronaveForm(ModelForm):
+    class Meta:
+        model = Aeronave
+        fields = ['title', 'matricula', 'expiration']

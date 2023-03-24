@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.db import IntegrityError
-from .forms import ClientForm, ClientFilterForm, GastoForm
+from .forms import ClientForm, ClientFilterForm, GastoForm, AeronaveForm
 from .models import Operacion, Aeronave, Impuesto
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -161,7 +161,7 @@ def expensa_detail(request, gasto_id):
             form.save()
             return redirect('expensas')
         except ValueError:
-            return render(request, 'expensa_detail.html', {'expensa': gasto, 'form': form, 'error': 'Error actualizando el cliente'})
+            return render(request, 'expensa_detail.html', {'expensa': gasto, 'form': form, 'error': 'Error actualizando el gasto'})
 
 
 @login_required
@@ -173,19 +173,19 @@ def delete_expensa(request, gasto_id):
 
 
 @login_required
-def gasto_detail(request, operacion_id):
+def gasto_detail(request, product_id):
     if request.method == 'GET':
-        product = get_object_or_404(Operacion, pk=operacion_id, user=request.user)
+        product = get_object_or_404(Operacion, pk=product_id, user=request.user)
         form = ClientForm(instance=product)
         return render(request, 'gasto_detail.html', {'client': product, 'form': form})
     else:
         try:
-            product = get_object_or_404(Operacion, pk=operacion_id)
+            product = get_object_or_404(Operacion, pk=product_id)
             form = ClientForm(request.POST, instance=product)
             form.save()
             return redirect('gastos')
         except ValueError:
-            return render(request, 'gasto_detail.html', {'client': product, 'form': form, 'error': 'Error actualizando el cliente'})
+            return render(request, 'gasto_detail.html', {'client': product, 'form': form, 'error': 'Error actualizando la operación'})
 
 def send_mail_with_excel(excel_file):
     module_dir = os.path.dirname(__file__)   #get current directory
@@ -205,13 +205,17 @@ def send_mail_with_excel(excel_file):
 
     objetos_todos = Operacion.objects.all()
 
-    for product in objetos_hoy:
+    row = 9  # empezar a agregar en la fila 6
+    col = 1  # agregar en la primera columna
+    for product in objetos_todos:
         timeformat = "%H:%M:%S"
         delta = datetime.strptime(str(product.landing_time), timeformat) - datetime.strptime(str(product.takeoff_time), timeformat)
-        
-        data = [product.takeoff_place, product.created.strftime("%d %m %y"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', '', '', '', '', '', '', product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2]
-   
-        sheet.append(data)
+        combustible_usado = product.fuel - product.fuel_on_landing
+        data = [product.takeoff_place, product.created.strftime("%d %m %y"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', product.fuel, product.fuel_on_landing, combustible_usado, product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.number_of_landings, product.number_of_splashdowns, product.water_release_cycles, product.water_release_amount]
+
+        for i, val in enumerate(data):
+            sheet.cell(row=row, column=col+i, value=val)
+        row+=1
 
     excel_file = BytesIO()
     wb.save(excel_file)
@@ -265,16 +269,23 @@ def export_excel(request):
     max_col = sheet.max_column
 
     
-    products = Operacion.objects.all()   
-    
+    hoy = timezone.now().date()  # Obtiene la fecha actual
+    objetos_hoy = Operacion.objects.filter(created__date=hoy)
 
-    for product in products:
+    objetos_todos = Operacion.objects.all()
+
+    row = 9  # empezar a agregar en la fila 6
+    col = 1  # agregar en la primera columna
+    for product in objetos_todos:
         timeformat = "%H:%M:%S"
         delta = datetime.strptime(str(product.landing_time), timeformat) - datetime.strptime(str(product.takeoff_time), timeformat)
-        
-        data = [product.takeoff_place, product.created.strftime("%d %m %y"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', '', '', '', '', '', '', product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2]
-    
-        sheet.append(data)
+        combustible_usado = product.fuel - product.fuel_on_landing
+        data = [product.takeoff_place, product.created.strftime("%d %m %y"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', product.fuel, product.fuel_on_landing, combustible_usado, product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.number_of_landings, product.number_of_splashdowns, product.water_release_cycles, product.water_release_amount]
+
+        for i, val in enumerate(data):
+            sheet.cell(row=row, column=col+i, value=val)
+        row+=1
+
 
     wb.save(response)  
 
@@ -287,6 +298,66 @@ def delete_client(request, product_id):
     if request.method == 'POST':
         product.delete()
         return redirect('gastos')
+
+#  AERONAVES
+
+@login_required
+def aeronaves(request):
+  
+    context = {}   
+    context['aeronaves'] = Aeronave.objects.all()
+    paginated_filter = Paginator(Aeronave.objects.all(), 10)
+    page_number = request.GET.get("page")
+    filter_pages = paginated_filter.get_page(page_number)
+    context['pages'] = filter_pages
+   
+    return render(request, 'aeronaves.html', context=context)
+
+@login_required
+def create_aeronave(request):
+    if request.method == 'GET':
+
+        return render(request, 'create_aeronave.html', {
+            'form': AeronaveForm,
+
+        })
+    else:
+        try:
+            
+            form = AeronaveForm(request.POST)
+            new_client = form.save(commit=False)
+            new_client.user = request.user
+            new_client.save()
+            return redirect('aeronaves')
+        except ValueError:
+            return render(request, 'create_aeronave.html', {
+                'form': AeronaveForm,
+                'error': 'Please provide valid data'
+            })
+
+@login_required
+def aeronave_detail(request, aeronave_id):
+    if request.method == 'GET':
+        aeronave = get_object_or_404(Aeronave, pk=aeronave_id)
+        form = AeronaveForm(instance=aeronave)
+        return render(request, 'aeronave_detail.html', {'aeronave': aeronave, 'form': form})
+    else:
+        try:
+            aeronave = get_object_or_404(Aeronave, pk=aeronave_id)
+            form = AeronaveForm(request.POST, instance=aeronave)
+            form.save()
+            return redirect('aeronaves')
+        except ValueError:
+            return render(request, 'aeronave_detail.html', {'aeronave': aeronave, 'form': form, 'error': 'Error actualizando la aeronave'})
+
+
+@login_required
+def delete_aeronave(request, aeronave_id):
+    aeronave = get_object_or_404(Aeronave, pk=aeronave_id)
+    if request.method == 'POST':
+        aeronave.delete()
+        return redirect('aeronaves')
+
 
 @login_required
 def signout(request):

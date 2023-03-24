@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    
+    {{error}}
+    <main class="mt-5 pt-3">
+        <div class="row">
+            <div class="col-md-4 offset-md-4 mt-5">
+                <form action="/aeronaves/create/" method="POST" class="card card-body ">
+                    <h1 class="text-center">
+                        Editar aeronave
+                    </h1>
+
+                    {{error}}
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="title">Titulo:</label>
+                        <input type="text" name="title" id="title" value="{{aeronave.title}}"
+                        class="form-control" placeholder="Escribe un titulo para la aeronave">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description">Matricula:</label>
+                        <input type="text" name="matricula" id="matricula" value="{{aeronave.matricula}}"
+                        class="form-control" placeholder="Escribe la matricula de la aeronave">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description">Fecha de expiración del 337:</label>
+                        <input type="date" name="expiration" id="expiration" value="{{ aeronave.expiration|date:"Y-m-d" }}"
+                        class="form-control" placeholder="Fecha de expiración del 337">
+                    </div>
+
+
+
+                    <button type="submit" class="btn btn-primary">
+                        Crear
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+{% endblock %}
