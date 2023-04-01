@@ -31,6 +31,7 @@ from dotenv import load_dotenv
 from django.utils.formats import date_format
 from django.utils.dateparse import parse_date
 from django.utils import timezone
+from django.contrib import messages
 load_dotenv()
 # Create your views here.
 def home(request):
@@ -91,7 +92,7 @@ def gastos(request):
    
     context['form'] = filtered_clients.form
     context['pages'] = filter_pages
-   
+    
     return render(request, 'gastos.html', context=context)
 
 @login_required
@@ -138,6 +139,7 @@ def create_gasto(request):
         try:
             
             form = ClientForm(request.POST)
+            print(form.data)
             new_client = form.save(commit=False)
             new_client.user = request.user
             new_client.save()
@@ -187,7 +189,7 @@ def gasto_detail(request, product_id):
         except ValueError:
             return render(request, 'gasto_detail.html', {'client': product, 'form': form, 'error': 'Error actualizando la operación'})
 
-def send_mail_with_excel(excel_file):
+def send_mail_with_excel(request):
     module_dir = os.path.dirname(__file__)   #get current directory
     file_path = os.path.join(module_dir, 'static/Reporte_diario.xlsx')   #full path to text.
     response = HttpResponse(content_type='application/ms-excel')
@@ -211,7 +213,7 @@ def send_mail_with_excel(excel_file):
         timeformat = "%H:%M:%S"
         delta = datetime.strptime(str(product.landing_time), timeformat) - datetime.strptime(str(product.takeoff_time), timeformat)
         combustible_usado = product.fuel - product.fuel_on_landing
-        data = [product.takeoff_place, product.created.strftime("%d %m %y"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', product.fuel, product.fuel_on_landing, combustible_usado, product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.number_of_landings, product.number_of_splashdowns, product.water_release_cycles, product.water_release_amount]
+        data = [product.takeoff_place, product.created.strftime("%y %m %d"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', product.fuel, product.fuel_on_landing, combustible_usado, product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.number_of_landings, product.number_of_splashdowns, product.water_release_cycles, product.water_release_amount]
 
         for i, val in enumerate(data):
             sheet.cell(row=row, column=col+i, value=val)
@@ -220,41 +222,53 @@ def send_mail_with_excel(excel_file):
     excel_file = BytesIO()
     wb.save(excel_file)
     excel_file.seek(0)
+    destinatarios = ['augustorresfx@gmail.com', 'agustorres633@gmail.com']
 
-    msg = MIMEMultipart()
-    msg['From'] = 'no.reply.wings@gmail.com'
-    msg['To'] = ', '.join(['augustorresfx@gmail.com', 'gguerra@helicopterosdelpacifico.com.ar'])
-    msg['Subject'] = 'Su reporte del día'
+   #msg['To'] = ', '.join(['gdguerra07@gmail.com'])
+   #msg['To'] = ', '.join(['gguerra@helicopterosdelpacifico.com.ar'])
+    try:
+        for destinatario in destinatarios:
 
-    part = MIMEBase('application', 'octet-stream')
-    part.set_payload((excel_file).read())
-    encoders.encode_base64(part)
-    part.add_header('Content-Disposition', 'attachment', filename='Reporte_Diario' + \
-    str(datetime.now())+'.xlsx')
-    msg.attach(part)
+            msg = MIMEMultipart()
+            msg['From'] = 'no.reply.wings@gmail.com'
+            msg['To'] = destinatario
 
-    html = """\
-        <html>
-        <head></head>
-        <body>
-            <h1>Estimado/a,</h1>
-            <h2>Adjunto encontrará el archivo de Excel con los datos solicitados:</h2>
-        </body>
-        </html>
-        """
-    msg.attach(MIMEText(html, 'html'))
+            msg['Subject'] = 'Su reporte del día'
 
-    # Conectar y enviar el correo electrónico
-    smtp_server = 'smtp.gmail.com'  # Cambia esto a tu servidor SMTP
-    smtp_port = 587  # Cambia esto al puerto de tu servidor SMTP
-    smtp_user = os.getenv('SMTP_USER')
-    smtp_password = os.getenv('SMTP_PASSWORD')  # Cambia esto a tu contraseña SMTP
-    smtp_connection = smtplib.SMTP(smtp_server, smtp_port)
-    smtp_connection.starttls()
-    smtp_connection.login(smtp_user, smtp_password)
-    smtp_connection.sendmail(smtp_user, msg['To'], msg.as_string())
-    smtp_connection.quit()
+            part = MIMEBase('application', 'octet-stream')
+            part.set_payload((excel_file).read())
+            encoders.encode_base64(part)
+            part.add_header('Content-Disposition', 'attachment', filename='Reporte_Diario' + \
+            str(datetime.now())+'.xlsx')
+            msg.attach(part)
 
+            html = """\
+                <html>
+                <head></head>
+                <body>
+                    <h1>Estimado/a,</h1>
+                    <h2>Adjunto encontrará el archivo de Excel con los datos solicitados:</h2>
+                </body>
+                </html>
+                """
+            msg.attach(MIMEText(html, 'html'))
+
+            # Conectar y enviar el correo electrónico
+            smtp_server = 'smtp.gmail.com'  # Cambia esto a tu servidor SMTP
+            smtp_port = 587  # Cambia esto al puerto de tu servidor SMTP
+            smtp_user = os.getenv('SMTP_USER')
+            smtp_password = os.getenv('SMTP_PASSWORD')  # Cambia esto a tu contraseña SMTP
+            smtp_connection = smtplib.SMTP(smtp_server, smtp_port)
+            smtp_connection.starttls()
+            smtp_connection.login(smtp_user, smtp_password)
+            smtp_connection.sendmail(smtp_user, msg['To'], msg.as_string())
+            smtp_connection.quit()
+            excel_file.seek(0)
+        messages.success(request, 'Los correos electrónicos se enviaron correctamente')
+    except:
+        messages.error(request, 'Error enviando los correos electrónicos')
+    
+    
     return redirect('gastos')
 
 @login_required
@@ -282,7 +296,7 @@ def export_excel(request):
         timeformat = "%H:%M:%S"
         delta = datetime.strptime(str(product.landing_time), timeformat) - datetime.strptime(str(product.takeoff_time), timeformat)
 
-        data = [product.takeoff_place, product.created.strftime("%d %m %y"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.number_of_landings, product.number_of_splashdowns, product.water_release_cycles, product.water_release_amount]
+        data = [product.takeoff_place, product.created.strftime("%y %m %d"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.number_of_landings, product.number_of_splashdowns, product.water_release_cycles, product.water_release_amount]
 
         for i, val in enumerate(data):
             sheet.cell(row=row, column=col+i, value=val)

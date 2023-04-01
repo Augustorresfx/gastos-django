@@ -26,9 +26,7 @@
           <h5 class="card-title">{{mecanico.name}}</h5>
           <p class="card-text text-danger">Fecha de vencimiento: {{mecanico.expiration}}.</p>
           <a href="{% url 'mecanico_detail' mecanico.id %}" class="btn btn-primary">Ver o editar</a>
-          <form class="my-2" action="{% url 'delete_mecanico' mecanico.id %}" method="POST">
-            {% csrf_token %}
-          <button class="btn btn-danger">
+          <button id="eliminar-elemento" data-url="{% url 'delete_mecanico' mecanico.id %}" class="w-10 btn btn-sm btn-danger">
             Eliminar
           </button>
         </form>
@@ -43,4 +41,6 @@
   </div>
 
 </main>
+{% load static %}
+<script src="{% static 'js/swal.js' %}"></script>
 {% endblock %}

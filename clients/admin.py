@@ -1,11 +1,12 @@
 from django.contrib import admin
-from .models import Operacion, Aeronave, Mecanico, Razon, Operador, Cliente, Piloto, Impuesto, Categoria, Gasto
+from .models import Operacion, Aeronave, Mecanico, Razon, Operador, Cliente, Piloto, Impuesto, Categoria, Gasto, Base
 
 
 class ProductAdmin(admin.ModelAdmin):
     readonly_fields = ("created", )
 
 # Register your models here.
+admin.site.register(Base)
 admin.site.register(Operacion, ProductAdmin)
 admin.site.register(Aeronave)
 admin.site.register(Piloto)

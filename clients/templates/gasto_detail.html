@@ -15,8 +15,7 @@
 
                 <div class="mb-3">
                     <label for="title">Title:</label>
-                    <input type="text" name="title" id="title"
-                    class="form-control" placeholder="Escribe el título de la operación" value="{{ client.title }}">
+                    {{ form.title }}
                 </div>
 
                 <div class="mb-3">
@@ -55,12 +54,6 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="title">Consumo de combustible por vuelo:</label>
-                    <input type="number" name="fuel_per_flight" id="fuel_per_flight"
-                    class="form-control" placeholder="Escribe la cantidad de litros" value="{{ client.fuel_per_flight }}">
-                </div>
-
-                <div class="mb-3">
                     <label for="title">Lugar de salida:</label>
                     <input type="text" name="takeoff_place" id="takeoff_place"
                     class="form-control" placeholder="Escribe el nombre del lugar" value="{{ client.takeoff_place }}">
@@ -87,13 +80,13 @@
                 <div class="mb-3">
                     <label for="title">Horario de despegue:</label>
                     <input type="time" name="takeoff_time" id="takeoff_time"
-                    class="form-control" placeholder="Horario de despegue" value="{{ client.takeoff_time }}">
+                    class="form-control" placeholder="Horario de despegue" value="{{ client.takeoff_time }}" readonly>
                 </div>
 
                 <div class="mb-3">
                     <label for="title">Horario de aterrizaje:</label>
                     <input type="time" name="landing_time" id="landing_time"
-                    class="form-control" placeholder="Horario de aterrizaje" value="{{ client.landing_time }}">
+                    class="form-control" placeholder="Horario de aterrizaje" value="{{ client.landing_time }}" readonly>
                 </div>
 
                 <div class="mb-3">

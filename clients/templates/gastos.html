@@ -11,7 +11,14 @@
 <div class="container-fluid px-4 mt-5">
 
       <h1 class="fs-4 mb-3">Operaciones</h1>
-     
+      {% if messages %}
+      {% for message in messages %}
+          <div class="alert alert-{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+              {{ message }}
+          </div>
+      {% endfor %}
+   {% endif %}
+
       <div class="d-flex justify-content-start align-items-center my-2">
         <a href="/gastos/create/" class="btn btn-outline-primary my-2 d-flex justify-content-center align-items-center mx-2">
           <span class="material-icons-outlined ">
@@ -20,7 +27,7 @@
           <span>Crear operación</span>
         </a>
 
-        <a href="{% url 'send_mail_with_excel' %}" class="btn btn-outline-primary my-2 d-flex justify-content-center align-items-center mx-2">
+        <a id="send_mail" href="{% url 'send_mail_with_excel' %}" class="btn btn-outline-primary my-2 d-flex justify-content-center align-items-center mx-2">
           <span class="material-icons-outlined ">
             mail  
             </span>
@@ -72,7 +79,8 @@
                   <th scope="col">ID</th>
                   <th scope="col">Nombre</th>
                   <th scope="col">Piloto</th>
-                  <th scope="col">Categoría</th>
+                  <th scope="col">Operador</th>
+                  <th scope="col">Aeronave</th>
                   <th scope="col">Creador</th>
                   <th scope="col">Fecha</th>
                   <th scope="col">Alumno/Instructor</th>
@@ -89,6 +97,14 @@
                   <th scope="col">Hora de corte motor 1</th>
                   <th scope="col">Hora de corte motor 2</th>
                   <th scope="col">Número de aterrizajes</th>
+                  <th scope="col">Número de amerizajes</th>
+                  <th scope="col">Ciclos de encendido</th>
+                  <th scope="col">Ciclos de lanzamiento de agua</th>
+                  <th scope="col">Cantidad de agua lanzada</th>
+                  <th scope="col">Ciclos con carga externa</th>
+                  <th scope="col">Peso con carga externa</th>
+                  <th scope="col">Motivo del vuelo</th>
+
                   <th scope="col">Nota de operación</th>
                   <th scope="col">Nota de mantenimiento</th>
                   <th scope="col">Cliente</th>
@@ -105,6 +121,7 @@
                     <td>{{ product.id }}</td>
                     <td>{{ product.title }}</td>
                     <td>{{ product.pilot }}</td>
+                    <td>{{ product.operator }}</td>
                     <td>{{ product.aeronave }}</td>
                     <td>{{ product.user.username }}</td>
                     <td>{{ product.created }}</td>
@@ -123,6 +140,13 @@
                     <td>{{ product.engine_cut_1 }}</td>
                     <td>{{ product.engine_cut_2 }}</td>
                     <td>{{ product.number_of_landings }}</td>
+                    <td>{{ product.number_of_splashdowns }}</td>
+                    <td>{{ product.start_up_cycles }}</td>
+                    <td>{{ product.water_release_cycles }}</td>
+                    <td>{{ product.water_release_amount }}</td>
+                    <td>{{ product.cycles_with_external_load }}</td>
+                    <td>{{ product.weight_with_external_load }}</td>
+                    <td>{{ product.reason_of_flight }}</td>
 
                     <td><div style="height: 80px; width: 120px; overflow:auto;">{{ product.operation_note }} </div></td>
                     <td><div style="height: 80px; width: 120px; overflow:auto;">{{ product.maintenance_note }} </div></td>
@@ -136,12 +160,11 @@
                       </a>
                     </td>
                     <td>
-                      <form action="{% url 'delete_gasto' product.id %}" method="POST">
-                        {% csrf_token %}
-                      <button class="w-10 btn btn-sm btn-danger">
+                     
+                      <button id="eliminar-elemento" data-url="{% url 'delete_gasto' product.id %}" class="w-10 btn btn-sm btn-danger">
                         Eliminar
                       </button>
-                    </form>
+                    
                     </td>
                   </tr>
                
@@ -205,5 +228,6 @@
 
 <script src="{% static 'js/dashboard.js' %}"></script>
 
+<script src="{% static 'js/swal.js' %}"></script>
 
 {% endblock %}

@@ -25,13 +25,14 @@
         <div class="card-body">
           <h5 class="card-title">{{aeronave.title}}</h5>
           <p class="card-text">Matrícula: {{aeronave.matricula}}</p>
+          <p class="card-text text-success">Horas disponibles: {{aeronave.horas_disponibles}}</p>
           <p class="card-text text-danger">Fecha de vencimiento: {{aeronave.expiration}}.</p>
           <a href="{% url 'aeronave_detail' aeronave.id %}" class="btn btn-primary">Ver o editar</a>
           <form class="my-2" action="{% url 'delete_aeronave' aeronave.id %}" method="POST">
             {% csrf_token %}
-          <button class="btn btn-danger">
-            Eliminar
-          </button>
+            <button id="eliminar-elemento" data-url="{% url 'delete_aeronave' aeronave.id %}" class="w-10 btn btn-sm btn-danger">
+              Eliminar
+            </button>
         </form>
         </div>
       </div>
@@ -44,4 +45,6 @@
   </div>
 
 </main>
+{% load static %}
+<script src="{% static 'js/swal.js' %}"></script>
 {% endblock %}

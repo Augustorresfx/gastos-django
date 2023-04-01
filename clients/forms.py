@@ -32,11 +32,14 @@ class ClientForm(ModelForm):
         model = Operacion
         fields = ['title', 'aeronave', 'pilot', 'alumn', 'mechanic', 'fuel', 'takeoff_place', 
                   'landing_place', 'engine_ignition_1', 'engine_ignition_2', 'takeoff_time', 'landing_time', 
-                  'engine_cut_1', 'engine_cut_2', 'number_of_landings', 'number_of_splashdowns', 'start_up_cycles', 'fuel_on_landing', 
-                  'fuel_per_flight', 'water_release_cycles', 'water_release_amount', 'cycles_with_external_load', 
+                  'engine_cut_1', 'engine_cut_2', 'number_of_landings', 'number_of_splashdowns', 'start_up_cycles', 'fuel_on_landing',
+                    'water_release_cycles', 'water_release_amount', 'cycles_with_external_load', 
                   'weight_with_external_load', 'reason_of_flight', 'other_reason', 'operator', 'client', 'operation_note', 'maintenance_note'
                   ]
         widgets = {
+            'title': forms.Select(attrs={
+                'class': 'form-select'
+            }),
             'aeronave': forms.Select(attrs={
                 'class': 'form-select'
             }),
@@ -60,7 +63,7 @@ class ClientForm(ModelForm):
 class AeronaveForm(ModelForm):
     class Meta:
         model = Aeronave
-        fields = ['title', 'matricula', 'expiration']
+        fields = ['title', 'matricula', 'horas_disponibles', 'expiration']
 
 class PilotoForm(ModelForm):
     class Meta:
