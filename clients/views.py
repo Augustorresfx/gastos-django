@@ -139,7 +139,6 @@ def create_gasto(request):
         try:
             
             form = ClientForm(request.POST)
-            print(form.data)
             new_client = form.save(commit=False)
             new_client.user = request.user
             new_client.save()

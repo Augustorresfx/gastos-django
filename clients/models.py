@@ -57,7 +57,7 @@ class Razon(models.Model):
     
     class Meta:
         ordering = ('title', )
-        verbose_name_plural = 'Razones'
+        verbose_name_plural = 'Motivos'
         
     def __str__(self):
         return self.title
@@ -134,14 +134,12 @@ class Gasto(models.Model):
 
         sumar = subtotal * impuesto
 
-        print(self.impuesto.__float__)
-
         total = subtotal + sumar
 
         return total
 
     def save(self,*args,**kwargs):
-        # are you really sure that you want to save a string ???
+        
         self.total = float(self.calcular_total())
         super().save(*args, **kwargs)
 
