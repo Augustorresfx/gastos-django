@@ -6,6 +6,7 @@ class ProductAdmin(admin.ModelAdmin):
     readonly_fields = ("created", )
 
 # Register your models here.
+
 admin.site.register(Base)
 admin.site.register(Operacion, ProductAdmin)
 admin.site.register(Aeronave)

@@ -107,6 +107,7 @@ class Categoria(models.Model):
         return self.title
 
 class Gasto(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     subtotal = models.IntegerField()
     created = models.DateTimeField(auto_now_add=True)
@@ -118,7 +119,7 @@ class Gasto(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     total = models.DecimalField(decimal_places=2, max_digits=100, blank=True)
     
-
+    
     class Meta:
         ordering = ('title', )
         verbose_name_plural = 'Gastos'
@@ -163,6 +164,8 @@ class Operacion(models.Model):
     landing_time = models.TimeField()
     engine_cut_1 = models.TimeField()
     engine_cut_2 = models.TimeField(blank=True, null=True)
+    total_encendido_1 = models.DurationField(blank=True, null=True)
+    total_encendido_2 = models.DurationField(blank=True, null=True)
     number_of_landings = models.IntegerField()
     number_of_splashdowns = models.IntegerField(blank=True, null=True)
     start_up_cycles = models.IntegerField()
@@ -214,6 +217,13 @@ class Operacion(models.Model):
         self.aeronave.save()
 
     def save(self,*args,**kwargs):
+        # Calcula el total de tiempo encendido de los motores
+        if self.engine_cut_1 and self.engine_ignition_1:
+            total_encendido_1 = datetime.combine(datetime.today(), self.engine_cut_1) - datetime.combine(datetime.today(), self.engine_ignition_1)
+            self.total_encendido_1 = timedelta(hours=total_encendido_1.seconds // 3600, minutes=total_encendido_1.seconds // 60 % 60)
+        if self.engine_cut_2 and self.engine_ignition_2:
+            total_encendido_2 = datetime.combine(datetime.today(), self.engine_cut_2) - datetime.combine(datetime.today(), self.engine_ignition_2)
+            self.total_encendido_2 = timedelta(hours=total_encendido_2.seconds // 3600, minutes=total_encendido_2.seconds // 60 % 60)
         # Guarda el combustible usado
         self.used_fuel = int(self.calcular_combustible_usado())
         super().save(*args, **kwargs)

@@ -1,26 +1,16 @@
-  // Obtener todos los botones de eliminar
-  const eliminarBtns = document.querySelectorAll("#eliminar-elemento");
-/*   const sendMailBtn = document.querySelector("#send_mail");
-
-  sendMailBtn.addEventListener("click", function (event) {
-      
-  
-      Swal.fire({
-          title: "Correo enviado",
-          text: "Los correos electrónicos se enviaron correctamente",
-          icon: "success",
-          confirmButtonText: "Ok"
-      });
-  }); */
-  // Agregar un evento click a cada botón de eliminar
-  eliminarBtns.forEach(function(el) {
+// Obtener todos los botones de eliminar
+const eliminarBtns = document.querySelectorAll(".eliminar-elemento");
+console.log(eliminarBtns)
+// Agregar un evento click a todos los botones con la clase confirmar-eliminar
+eliminarBtns.forEach(function(el) {
+  if (el.classList.contains('confirmar-eliminar')) {
     el.addEventListener("click", function (event) {
       // Prevenir la acción predeterminada del botón
       event.preventDefault();
 
       // Obtener la URL de eliminación del atributo data-url
       const url = el.getAttribute("data-url");
-
+      console.log(url)
       // Mostrar un mensaje de confirmación utilizando Sweet Alert
       Swal.fire({
         title: "¿Estás seguro que deseas eliminar este elemento?",
@@ -37,11 +27,11 @@
           form.action = url;
 
           // Agregar el token CSRF al formulario
-          const csrfToken = document.getElementsByName("csrfmiddlewaretoken")[0];
+          const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
           const csrfInput = document.createElement("input");
           csrfInput.type = "hidden";
           csrfInput.name = "csrfmiddlewaretoken";
-          csrfInput.value = csrfToken.value;
+          csrfInput.value = csrfToken;
           form.appendChild(csrfInput);
 
           // Agregar un campo oculto para indicar que la solicitud es para eliminar
@@ -57,4 +47,5 @@
         }
       });
     });
-  });
+  }
+});

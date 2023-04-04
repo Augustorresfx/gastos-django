@@ -2,7 +2,7 @@
 
 
 {% block content %}
-
+{% csrf_token %}
 <main class="mt-5 pt-3">
   <div class="container-fluid px-4 mt-5">
   
@@ -26,7 +26,7 @@
           <h5 class="card-title">{{mecanico.name}}</h5>
           <p class="card-text text-danger">Fecha de vencimiento: {{mecanico.expiration}}.</p>
           <a href="{% url 'mecanico_detail' mecanico.id %}" class="btn btn-primary">Ver o editar</a>
-          <button id="eliminar-elemento" data-url="{% url 'delete_mecanico' mecanico.id %}" class="w-10 btn btn-sm btn-danger">
+          <button type="submit" class="w-10 btn btn-sm btn-danger eliminar-elemento confirmar-eliminar" data-url="{% url 'delete_mecanico' mecanico.id %}">
             Eliminar
           </button>
         </form>

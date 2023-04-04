@@ -4,13 +4,20 @@
 {% block content %}
 {% load app_extras %}
 {% load static %}
+
 <main class="mt-5 pt-3">
-  
+  {% csrf_token %}
 <div class="container-fluid px-4">
   <div class="row g-3 my-2">
   <div class="row my-5">
       <h1 class="fs-4 mb-3">Expensas</h1>
-
+      {% if messages %}
+      {% for message in messages %}
+          <div class="alert alert-{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+              {{ message }}
+          </div>
+      {% endfor %}
+   {% endif %}
       
      
       <div class="d-flex justify-content-start align-items-center my-2">
@@ -35,6 +42,7 @@
                   <th scope="col">ID</th>
                   <th scope="col">Titulo</th>
                   <th scope="col">Total</th>
+                  <th scope="col">Creador</th>
                   <th scope="col">Descripcion</th>
                   <th scope="col">Fecha de emisión comprobante</th>
                   <th scope="col">Rubro</th>
@@ -51,6 +59,7 @@
                     <td>{{ gasto.id }}</td>
                     <td>{{ gasto.title }}</td>
                     <td>${{ gasto.total }}</td>
+                    <td>{{ gasto.user }}</td>
                     <td><div style="height: 80px; width: 120px; overflow:auto;">{{ gasto.description }} </div></td>
                     <td>{{ gasto.emision }}</td>
                     <td>{{ gasto.rubro }}</td>
@@ -66,10 +75,10 @@
                       </a>
                     </td>
                     <td>
-                      <button id="eliminar-elemento" data-url="{% url 'delete_expensa' gasto.id %}" class="w-10 btn btn-sm btn-danger">
+                      <button type="submit" class="w-10 btn btn-sm btn-danger eliminar-elemento confirmar-eliminar" data-url="{% url 'delete_expensa' gasto.id %}">
                         Eliminar
                       </button>
-                    </form>
+                  
                     </td>
                   </tr>
             
@@ -128,6 +137,7 @@
   </div>
   </div>
 </div>
-{% load static %}
+
 <script src="{% static 'js/swal.js' %}"></script>
+</main>
 {% endblock %}

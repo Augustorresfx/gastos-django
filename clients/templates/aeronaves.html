@@ -4,6 +4,7 @@
 {% block content %}
 
 <main class="mt-5 pt-3">
+  {% csrf_token %}
   <div class="container-fluid px-4 mt-5">
   
         <h1 class="fs-4 mb-3">Aeronaves</h1>
@@ -28,12 +29,9 @@
           <p class="card-text text-success">Horas disponibles: {{aeronave.horas_disponibles}}</p>
           <p class="card-text text-danger">Fecha de vencimiento: {{aeronave.expiration}}.</p>
           <a href="{% url 'aeronave_detail' aeronave.id %}" class="btn btn-primary">Ver o editar</a>
-          <form class="my-2" action="{% url 'delete_aeronave' aeronave.id %}" method="POST">
-            {% csrf_token %}
-            <button id="eliminar-elemento" data-url="{% url 'delete_aeronave' aeronave.id %}" class="w-10 btn btn-sm btn-danger">
-              Eliminar
-            </button>
-        </form>
+          <button type="submit" class="w-10 btn btn-sm btn-danger eliminar-elemento confirmar-eliminar" data-url="{% url 'delete_aeronave' aeronave.id %}">
+            Eliminar
+          </button>
         </div>
       </div>
       

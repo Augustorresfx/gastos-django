@@ -160,10 +160,10 @@
                       </a>
                     </td>
                     <td>
-                     
-                      <button id="eliminar-elemento" data-url="{% url 'delete_gasto' product.id %}" class="w-10 btn btn-sm btn-danger">
+                      <button type="submit" class="w-10 btn btn-sm btn-danger eliminar-elemento confirmar-eliminar" data-url="{% url 'delete_gasto' product.id %}">
                         Eliminar
                       </button>
+                 
                     
                     </td>
                   </tr>
@@ -225,9 +225,10 @@
 </div>
 
 
-
-<script src="{% static 'js/dashboard.js' %}"></script>
-
 <script src="{% static 'js/swal.js' %}"></script>
+<script src="{% static 'js/dashboard.js' %}"></script>
+</main>
+
+
 
 {% endblock %}

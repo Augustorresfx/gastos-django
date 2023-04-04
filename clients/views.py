@@ -32,6 +32,17 @@ from django.utils.formats import date_format
 from django.utils.dateparse import parse_date
 from django.utils import timezone
 from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test
+from django.urls import reverse_lazy
+
+def is_staff_user(user):
+    return user.is_staff
+
+staff_required = user_passes_test(is_staff_user, login_url=reverse_lazy('signin'))
+
+
+def is_basic_user(user):
+    return user.groups.filter(name='PermisoBasico').exists()
 load_dotenv()
 # Create your views here.
 def home(request):
@@ -75,6 +86,8 @@ def search_expenses(request):
         return JsonResponse(list(data), safe=False)
 
 @login_required
+@user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
+
 def gastos(request):
   
     context = {}   
@@ -96,6 +109,8 @@ def gastos(request):
     return render(request, 'gastos.html', context=context)
 
 @login_required
+@user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
+
 def expensas(request):
   
     context = {}   
@@ -108,6 +123,8 @@ def expensas(request):
     return render(request, 'expensas.html', context=context)
 
 @login_required
+@user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
+
 def create_expensa(request):
     if request.method == 'GET':
 
@@ -119,6 +136,7 @@ def create_expensa(request):
             
             form = GastoForm(request.POST)
             new_client = form.save(commit=False)
+            new_client.user = request.user
             new_client.save()
             return redirect('expensas')
         except ValueError:
@@ -128,6 +146,8 @@ def create_expensa(request):
             })
 
 @login_required
+@user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
+
 def create_gasto(request):
     if request.method == 'GET':
 
@@ -150,6 +170,8 @@ def create_gasto(request):
             })
 
 @login_required
+@user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
+
 def expensa_detail(request, gasto_id):
     if request.method == 'GET':
         gasto = get_object_or_404(Gasto, pk=gasto_id)
@@ -166,14 +188,30 @@ def expensa_detail(request, gasto_id):
 
 
 @login_required
+@user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
+
+# def delete_expensa(request, gasto_id):
+#     gasto = get_object_or_404(Gasto, pk=gasto_id)
+#     if request.method == 'POST':
+#         gasto.delete()
+#         return redirect('expensas')
+
 def delete_expensa(request, gasto_id):
     gasto = get_object_or_404(Gasto, pk=gasto_id)
-    if request.method == 'POST':
-        gasto.delete()
+    if gasto.user == request.user or request.user.is_staff:
+        if request.method == 'POST':
+            gasto.delete()
+            messages.success(request, 'Elemento eliminado correctamente')
+            return redirect('expensas')
+        else:
+            return render(request, 'delete_expensa.html', {'gasto': gasto})
+    else:
+        messages.error(request, 'No tienes permiso para eliminar este elemento')
         return redirect('expensas')
 
-
 @login_required
+@user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
+
 def gasto_detail(request, product_id):
     if request.method == 'GET':
         product = get_object_or_404(Operacion, pk=product_id, user=request.user)
@@ -212,8 +250,8 @@ def send_mail_with_excel(request):
         timeformat = "%H:%M:%S"
         delta = datetime.strptime(str(product.landing_time), timeformat) - datetime.strptime(str(product.takeoff_time), timeformat)
         combustible_usado = product.fuel - product.fuel_on_landing
-        data = [product.takeoff_place, product.created.strftime("%y %m %d"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', product.fuel, product.fuel_on_landing, combustible_usado, product.engine_ignition_1, product.engine_cut_1, product.engine_ignition_2, product.engine_cut_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.number_of_landings, product.number_of_splashdowns, product.water_release_cycles, product.water_release_amount]
-
+        data = [product.takeoff_place, product.created.strftime("%y %m %d"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', product.fuel, product.fuel_on_landing, combustible_usado, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.engine_ignition_2, product.engine_cut_2, product.total_encendido_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.number_of_landings, product.number_of_splashdowns, product.water_release_cycles, product.water_release_amount]
+        
         for i, val in enumerate(data):
             sheet.cell(row=row, column=col+i, value=val)
         row+=1
@@ -306,19 +344,34 @@ def export_excel(request):
 
     return response
 
-
 @login_required
-def delete_client(request, product_id):
+@user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
+# def delete_gasto(request, product_id):
+#     product = get_object_or_404(Operacion, pk=product_id)
+#     if request.method == 'POST':
+#         product.delete()
+#         return redirect('gastos')
+
+
+def delete_gasto(request, product_id):
     product = get_object_or_404(Operacion, pk=product_id)
-    if request.method == 'POST':
-        product.delete()
+    if product.user == request.user or request.user.is_staff:
+        if request.method == 'POST':
+            product.delete()
+            messages.success(request, 'Elemento eliminado correctamente')
+            return redirect('gastos')
+        else:
+            return render(request, 'delete_gasto.html', {'product': product})
+    else:
+        messages.error(request, 'No tienes permiso para eliminar este elemento')
         return redirect('gastos')
 
 #  AERONAVES
 
 @login_required
+@staff_required
 def aeronaves(request):
-  
+
     context = {}   
     context['aeronaves'] = Aeronave.objects.all()
     paginated_filter = Paginator(Aeronave.objects.all(), 10)
@@ -329,6 +382,8 @@ def aeronaves(request):
     return render(request, 'aeronaves.html', context=context)
 
 @login_required
+@staff_required
+
 def create_aeronave(request):
     if request.method == 'GET':
 
@@ -351,6 +406,8 @@ def create_aeronave(request):
             })
 
 @login_required
+@staff_required
+
 def aeronave_detail(request, aeronave_id):
     if request.method == 'GET':
         aeronave = get_object_or_404(Aeronave, pk=aeronave_id)
@@ -367,6 +424,8 @@ def aeronave_detail(request, aeronave_id):
 
 
 @login_required
+@staff_required
+
 def delete_aeronave(request, aeronave_id):
     aeronave = get_object_or_404(Aeronave, pk=aeronave_id)
     if request.method == 'POST':
@@ -378,6 +437,8 @@ def delete_aeronave(request, aeronave_id):
 # PILOTOS
 
 @login_required
+@staff_required
+
 def pilotos(request):
   
     context = {}   
@@ -390,6 +451,8 @@ def pilotos(request):
     return render(request, 'pilotos.html', context=context)
 
 @login_required
+@staff_required
+
 def create_piloto(request):
     if request.method == 'GET':
 
@@ -412,6 +475,8 @@ def create_piloto(request):
             })
 
 @login_required
+@staff_required
+
 def piloto_detail(request, piloto_id):
     if request.method == 'GET':
         piloto = get_object_or_404(Piloto, pk=piloto_id)
@@ -428,6 +493,8 @@ def piloto_detail(request, piloto_id):
 
 
 @login_required
+@staff_required
+
 def delete_piloto(request, piloto_id):
     piloto = get_object_or_404(Piloto, pk=piloto_id)
     if request.method == 'POST':
@@ -439,6 +506,8 @@ def delete_piloto(request, piloto_id):
 # MECANICOS
 
 @login_required
+@staff_required
+
 def mecanicos(request):
   
     context = {}   
@@ -451,6 +520,8 @@ def mecanicos(request):
     return render(request, 'mecanicos.html', context=context)
 
 @login_required
+@staff_required
+
 def create_mecanico(request):
     if request.method == 'GET':
 
@@ -473,6 +544,8 @@ def create_mecanico(request):
             })
 
 @login_required
+@staff_required
+
 def mecanico_detail(request, mecanico_id):
     if request.method == 'GET':
         mecanico = get_object_or_404(Mecanico, pk=mecanico_id)
@@ -489,6 +562,8 @@ def mecanico_detail(request, mecanico_id):
 
 
 @login_required
+@staff_required
+
 def delete_mecanico(request, mecanico_id):
     mecanico = get_object_or_404(Mecanico, pk=mecanico_id)
     if request.method == 'POST':
@@ -497,6 +572,7 @@ def delete_mecanico(request, mecanico_id):
 
 # FIN MECANICOS
 @login_required
+
 def signout(request):
     logout(request)
     return redirect('home')
