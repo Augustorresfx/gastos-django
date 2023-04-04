@@ -259,10 +259,8 @@ def send_mail_with_excel(request):
     excel_file = BytesIO()
     wb.save(excel_file)
     excel_file.seek(0)
-    destinatarios = ['augustorresfx@gmail.com', 'agustorres633@gmail.com']
+    destinatarios = ['gguerra@helicopterosdelpacifico.com.ar', 'augustorresfx@gmail.com', 'agustorres633@gmail.com']
 
-   #msg['To'] = ', '.join(['gdguerra07@gmail.com'])
-   #msg['To'] = ', '.join(['gguerra@helicopterosdelpacifico.com.ar'])
     try:
         for destinatario in destinatarios:
 
