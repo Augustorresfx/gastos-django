@@ -3,6 +3,7 @@
 
 
 
+{% load static %}
 {% block content %}
 
     <main class="container">
@@ -17,20 +18,26 @@
                     {% csrf_token %}
 
                     <div class="mb-3">
-                        <label for="username">Username:</label>
+                        <label for="username">Nombre de usuario:</label>
                         <input type="text" name="username" id="username"
                         class="form-control" placeholder="Escribe tu nombre de usuario">
                     </div>
 
                     <div class="mb-3">
-                        <label for="password">Password:</label>
-                        <input type="password" name="password" id="password"
-                        class="form-control" placeholder="Escribe tu contraseña">
+                        <label for="password">Contraseña:</label>
+                        <div class="input-group">
+                            <input type="password" name="password" id="password"
+                                   class="form-control" placeholder="Escribe tu contraseña">
+                            <button type="button" id="showPassword" class="btn btn-secondary btn-sm">
+                              <i class="bi bi-eye"></i>
+                            </button>
+                          </div>
+     
                     </div>
 
                  
                     <button class="btn btn-primary">
-                        Signin
+                       Iniciar sesión
                     </button>
                 </form>
             </div>
@@ -39,5 +46,5 @@
 
 
 
-
+<script src="{% static 'js/showPassword.js' %}"></script>
 {% endblock %}
