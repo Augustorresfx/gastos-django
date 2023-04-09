@@ -24,15 +24,46 @@
 
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title">{{aeronave.title}}</h5>
-          <p class="card-text">Matrícula: {{aeronave.matricula}}</p>
-          <p class="card-text text-success">Horas disponibles: {{aeronave.horas_disponibles}}</p>
-          <p class="card-text text-primary">Horas usadas en vuelo: {{aeronave.horas_voladas}}</p>
-          <p class="card-text text-danger">Fecha de vencimiento: {{aeronave.expiration}}.</p>
-          <a href="{% url 'aeronave_detail' aeronave.id %}" class="btn btn-primary">Ver o editar</a>
-          <button type="submit" class="w-10 btn btn-sm btn-danger eliminar-elemento confirmar-eliminar" data-url="{% url 'delete_aeronave' aeronave.id %}">
-            Eliminar
-          </button>
+          <div class="d-flex">  <span class="material-icons-outlined">
+            flight
+            </span>
+            <span class="px-2">
+          <h4 class="card-title">{{aeronave.title}}</h4>
+        </span>
+        </div>
+        <div class="d-flex py-2">
+          <i class="bi bi-upc h4"></i>
+          <span class="px-2 pt-2">
+        <h6 class="card-text">Matrícula: {{aeronave.matricula}}</h6>
+      </span>
+      </div>
+      <div class="d-flex py-2">
+        <span class="material-symbols-outlined">
+        clock_loader_80
+        </span>
+        <span class="px-2 py-1">
+      <h6 class="card-text text-success">Horas disponibles: {{aeronave.horas_disponibles}}</h6>
+    </span>
+    </div>
+    <div class="d-flex py-2">
+      <span class="material-symbols-outlined">
+      clock_loader_20
+      </span>
+      <span class="px-2 py-1">
+    <h6 class="card-text text-primary">Horas de vuelo usadas: {{aeronave.horas_voladas}}</h6>
+  </span>
+  </div>
+  <div class="d-flex py-2">
+    <i class="bi bi-clipboard-x h4 "></i>
+    <span class="px-2 pt-2">
+  <h6 class="card-text text-danger">Fecha de vencimiento del 337: {{aeronave.expiration}}</h6>
+</span>
+</div>
+<a href="{% url 'aeronave_detail' aeronave.id %}" class="btn btn-primary">Ver o editar</a>
+<button type="submit" class="w-10 btn btn-sm btn-danger eliminar-elemento confirmar-eliminar" data-url="{% url 'delete_aeronave' aeronave.id %}">
+  Eliminar
+</button>
+         
         </div>
       </div>
       
