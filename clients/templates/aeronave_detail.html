@@ -28,10 +28,22 @@
 
                     <div class="mb-3">
                         <label for="description">Horas de vuelo disponibles:</label>
-                        <input type="text" name="horas_disponibles" id="horas_disponibles" value="{{aeronave.horas_disponibles}}"
+                        <input type="float" name="horas_disponibles" id="horas_disponibles" value="{{aeronave.horas_disponibles}}"
                         class="form-control" placeholder="Escribe el número de horas disponibles">
                     </div>
                     
+                    <div class="mb-3">
+                        <label for="description">Horas de vuelo usadas:</label>
+                        <input type="float" name="horas_voladas" id="horas_voladas" value="{{aeronave.horas_voladas}}"
+                        class="form-control" placeholder="Escribe el número de horas usadas">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description">Ciclos motor:</label>
+                        <input type="float" name="ciclos_motor" id="ciclos_motor" value="{{aeronave.ciclos_motor}}"
+                        class="form-control" placeholder="Escribe el número de ciclos de motor">
+                    </div>
+
                     <div class="mb-3">
                         <label for="description">Fecha de expiración del 337:</label>
                         <input type="date" name="expiration" id="expiration" value="{{ aeronave.expiration|date:"Y-m-d" }}"

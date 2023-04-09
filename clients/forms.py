@@ -61,7 +61,7 @@ class ClientForm(ModelForm):
 class AeronaveForm(ModelForm):
     class Meta:
         model = Aeronave
-        fields = ['title', 'matricula', 'horas_disponibles', 'expiration']
+        fields = ['title', 'matricula', 'horas_disponibles', 'horas_voladas', 'ciclos_motor', 'expiration']
 
 class PilotoForm(ModelForm):
     class Meta:

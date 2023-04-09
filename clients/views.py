@@ -250,7 +250,9 @@ def send_mail_with_excel(request):
         timeformat = "%H:%M:%S"
         delta = datetime.strptime(str(product.landing_time), timeformat) - datetime.strptime(str(product.takeoff_time), timeformat)
         combustible_usado = product.fuel - product.fuel_on_landing
-        data = [product.takeoff_place, product.created.strftime("%y %m %d"), '', product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), '', product.reason_of_flight.title, '', '', '', product.start_up_cycles, '', '', '', product.fuel, product.fuel_on_landing, combustible_usado, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.engine_ignition_2, product.engine_cut_2, product.total_encendido_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.number_of_landings, product.number_of_splashdowns, product.water_release_cycles, product.water_release_amount]
+
+
+        data = [product.title.title, product.takeoff_place, product.landing_place, product.created.strftime("%y %m %d"), product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.title, timedelta(seconds=delta.seconds), product.reason_of_flight.title, '', '', product.aeronave.horas_voladas, product.start_up_cycles, product.aeronave.horas_disponibles, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.engine_ignition_2, product.engine_cut_2, product.total_encendido_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.number_of_landings, product.number_of_splashdowns, product.water_release_cycles, product.water_release_amount]
         
         for i, val in enumerate(data):
             sheet.cell(row=row, column=col+i, value=val)
@@ -259,8 +261,8 @@ def send_mail_with_excel(request):
     excel_file = BytesIO()
     wb.save(excel_file)
     excel_file.seek(0)
-    destinatarios = ['gguerra@helicopterosdelpacifico.com.ar', 'augustorresfx@gmail.com', 'agustorres633@gmail.com']
-
+    destinatarios = ['augustorresfx@gmail.com', 'agustorres633@gmail.com']
+#'gguerra@helicopterosdelpacifico.com.ar'
     try:
         for destinatario in destinatarios:
 

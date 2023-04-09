@@ -11,7 +11,9 @@ class Aeronave(models.Model):
     title = models.CharField(max_length=100)
     expiration = models.DateField()
     matricula = models.CharField(max_length=100)
-    horas_disponibles = models.IntegerField()
+    horas_disponibles = models.FloatField()
+    horas_voladas = models.FloatField(blank=True, null=True, default=0)
+    ciclos_motor = models.IntegerField(blank=True, null=True, default=0)
 
     class Meta:
         ordering = ('title',)
@@ -210,10 +212,14 @@ class Operacion(models.Model):
 
         # Calcular la diferencia de tiempo en segundos y convertir a horas enteras
         segundos_de_vuelo = (dt_aterrizaje - dt_despegue).total_seconds()
-        horas_de_vuelo = int(segundos_de_vuelo / 3600)
+        horas_de_vuelo = float(segundos_de_vuelo / 3600)
 
         # Restar las horas de vuelo a las horas disponibles de la aeronave
-        self.aeronave.horas_disponibles -= horas_de_vuelo
+        self.aeronave.horas_disponibles -= round(horas_de_vuelo, 2)
+        self.aeronave.horas_voladas += round(horas_de_vuelo, 2)
+
+        # Sumar ciclos motor
+        self.aeronave.ciclos_motor += self.start_up_cycles
         self.aeronave.save()
 
     def save(self,*args,**kwargs):

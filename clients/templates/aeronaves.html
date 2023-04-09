@@ -27,6 +27,7 @@
           <h5 class="card-title">{{aeronave.title}}</h5>
           <p class="card-text">Matrícula: {{aeronave.matricula}}</p>
           <p class="card-text text-success">Horas disponibles: {{aeronave.horas_disponibles}}</p>
+          <p class="card-text text-primary">Horas usadas en vuelo: {{aeronave.horas_voladas}}</p>
           <p class="card-text text-danger">Fecha de vencimiento: {{aeronave.expiration}}.</p>
           <a href="{% url 'aeronave_detail' aeronave.id %}" class="btn btn-primary">Ver o editar</a>
           <button type="submit" class="w-10 btn btn-sm btn-danger eliminar-elemento confirmar-eliminar" data-url="{% url 'delete_aeronave' aeronave.id %}">
