@@ -22,7 +22,7 @@ class Aeronave(models.Model):
         if self.horas_disponibles < 0:
             raise ValidationError('Horas disponibles no pueden ser negativas.')
     def __str__(self):
-        return self.title
+        return self.title + '. Matrícula: ' + self.matricula
 
 class Base(models.Model):
     title = models.CharField(max_length=100)
