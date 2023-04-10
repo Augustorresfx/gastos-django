@@ -11,8 +11,8 @@ class Aeronave(models.Model):
     title = models.CharField(max_length=100)
     expiration = models.DateField()
     matricula = models.CharField(max_length=100)
-    horas_disponibles = models.FloatField()
-    horas_voladas = models.FloatField(blank=True, null=True, default=0)
+    horas_disponibles = models.FloatField(blank=True, null=True, default=0.0)
+    horas_voladas = models.FloatField(blank=True, null=True, default=0.0)
     ciclos_motor = models.IntegerField(blank=True, null=True, default=0)
 
     class Meta:

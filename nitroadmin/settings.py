@@ -145,6 +145,11 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Configuración de formatos de números
+USE_L10N = False
+USE_THOUSAND_SEPARATOR = True
+NUMBER_GROUPING = 3
+DECIMAL_SEPARATOR = '.'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
