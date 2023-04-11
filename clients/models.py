@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from datetime import datetime, timedelta
+from django.utils import timezone
 from django.core.exceptions import ValidationError
 
 # Create your models here.
@@ -151,7 +152,7 @@ class Operacion(models.Model):
     aeronave = models.ForeignKey(Aeronave, related_name='operaciones', on_delete=models.CASCADE)
     pilot = models.ForeignKey(Piloto, related_name='operaciones', on_delete=models.CASCADE)
     title = models.ForeignKey(Base, related_name='operaciones', on_delete=models.CASCADE)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True, null=False, blank=False)
     datecompleted = models.DateTimeField(null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     alumn = models.CharField(max_length=100, blank=True)
@@ -184,7 +185,7 @@ class Operacion(models.Model):
     maintenance_note = models.TextField(blank=True)
 
     def __str__(self):
-         return self.title + "- by " + self.user.username
+        return self.title.title
     
     
     def calcular_combustible_usado(self):
@@ -201,10 +202,11 @@ class Operacion(models.Model):
         return used_fuel
     
         # restar horas de vuelo a horas disponibles de aeronave
+
     def restar_horas_disponibles(self):
         # Convertir los horarios de despegue y aterrizaje a datetime con fecha ficticia (hoy)
-        dt_despegue = datetime.combine(datetime.today(), self.takeoff_time)
-        dt_aterrizaje = datetime.combine(datetime.today(), self.landing_time)
+        dt_despegue = datetime.combine(self.created, self.takeoff_time)
+        dt_aterrizaje = datetime.combine(self.created, self.landing_time)
 
         # Si el horario de aterrizaje es anterior al horario de despegue, sumar 1 día a la fecha de aterrizaje
         if dt_despegue > dt_aterrizaje:
@@ -223,6 +225,8 @@ class Operacion(models.Model):
         self.aeronave.save()
 
     def save(self,*args,**kwargs):
+        if self.created is None:
+            self.created = timezone.now()
         # Calcula el total de tiempo encendido de los motores
         if self.engine_cut_1 and self.engine_ignition_1:
             total_encendido_1 = datetime.combine(datetime.today(), self.engine_cut_1) - datetime.combine(datetime.today(), self.engine_ignition_1)
