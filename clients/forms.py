@@ -35,7 +35,6 @@ class ClientForm(ModelForm):
                   'weight_with_external_load', 'reason_of_flight', 'other_reason', 'operator', 'client', 'operation_note', 'maintenance_note'
                   ]
         widgets = {
-            'takeoff_time': forms.TimeInput(format='%H:%M'),
             'title': forms.Select(attrs={
                 'class': 'form-select'
             }),
@@ -59,7 +58,6 @@ class ClientForm(ModelForm):
             })
         
         }
-        input_formats = ['%H:%M']
 class AeronaveForm(ModelForm):
     class Meta:
         model = Aeronave

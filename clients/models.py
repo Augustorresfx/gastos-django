@@ -152,7 +152,7 @@ class Operacion(models.Model):
     aeronave = models.ForeignKey(Aeronave, related_name='operaciones', on_delete=models.CASCADE)
     pilot = models.ForeignKey(Piloto, related_name='operaciones', on_delete=models.CASCADE)
     title = models.ForeignKey(Base, related_name='operaciones', on_delete=models.CASCADE)
-    created = models.DateTimeField(auto_now_add=True, null=False, blank=False)
+    created = models.DateTimeField(default=timezone.now, editable=True, blank=True)
     datecompleted = models.DateTimeField(null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     alumn = models.CharField(max_length=100, blank=True)
@@ -185,7 +185,7 @@ class Operacion(models.Model):
     maintenance_note = models.TextField(blank=True)
 
     def __str__(self):
-        return self.title.title
+        return self.title.title + ', ID: ' + str(self.id)
     
     
     def calcular_combustible_usado(self):
