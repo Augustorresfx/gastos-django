@@ -412,7 +412,9 @@ def aeronave_detail(request, aeronave_id):
     if request.method == 'GET':
         aeronave = get_object_or_404(Aeronave, pk=aeronave_id)
         form = AeronaveForm(instance=aeronave)
-        return render(request, 'aeronave_detail.html', {'aeronave': aeronave, 'form': form})
+        horas_voladas_formatted = "{:.2f}".format(aeronave.horas_voladas).replace(',', '.')
+        horas_disponibles_formatted = "{:.2f}".format(aeronave.horas_disponibles).replace(',', '.')
+        return render(request, 'aeronave_detail.html', {'aeronave': aeronave, 'form': form, 'horas_voladas_formatted': horas_voladas_formatted, 'horas_disponibles_formatted': horas_disponibles_formatted})
     else:
         try:
             aeronave = get_object_or_404(Aeronave, pk=aeronave_id)

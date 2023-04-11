@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    
+{% load l10n %}
    
     <main class="mt-5 pt-3">
         <div class="row">
@@ -29,14 +29,14 @@
                     <div class="mb-3">
                         
                         <label for="description">Horas de vuelo disponibles:</label>
-                        <input type="number" step="any" name="horas_disponibles" id="horas_disponibles" value="{{ aeronave.horas_disponibles }}"
+                        <input type="number" step="any" name="horas_disponibles" id="horas_disponibles" value="{{ horas_disponibles_formatted }}"
                         class="form-control" placeholder="Escribe el número de horas disponibles">
                     </div>
                     
                     <div class="mb-3">
                        
                         <label for="description">Horas de vuelo usadas:</label>
-                        <input type="number" step="any" name="horas_voladas" id="horas_voladas" value="{{aeronave.horas_voladas}}"
+                        <input type="number" step="any" name="horas_voladas" id="horas_voladas" value="{{horas_voladas_formatted}}"
                         class="form-control" placeholder="Escribe el número de horas usadas">
                     </div>
 

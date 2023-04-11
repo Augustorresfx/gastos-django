@@ -1,6 +1,6 @@
 // Obtener todos los botones de eliminar
 const eliminarBtns = document.querySelectorAll(".eliminar-elemento");
-console.log(eliminarBtns)
+
 // Agregar un evento click a todos los botones con la clase confirmar-eliminar
 eliminarBtns.forEach(function(el) {
   if (el.classList.contains('confirmar-eliminar')) {
@@ -10,7 +10,7 @@ eliminarBtns.forEach(function(el) {
 
       // Obtener la URL de eliminación del atributo data-url
       const url = el.getAttribute("data-url");
-      console.log(url)
+
       // Mostrar un mensaje de confirmación utilizando Sweet Alert
       Swal.fire({
         title: "¿Estás seguro que deseas eliminar este elemento?",
