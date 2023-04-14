@@ -34,10 +34,31 @@ class Base(models.Model):
     def __str__(self):
         return self.title
 
+class Rol(models.Model):
+    title = models.CharField(max_length=100)
+
+    class Meta:
+        ordering = ('title',)
+        verbose_name_plural = 'Roles'
+    def __str__(self):
+        return self.title
+
+class Otro(models.Model):
+    name = models.CharField(max_length=100)
+    expiration = models.DateField(blank=True, null=True)
+    horas_voladas = models.FloatField(blank=True, null=True, default=0.0)
+    rol = models.ForeignKey(Rol, on_delete=models.CASCADE, null=True)
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name_plural = 'Otros'
+    def __str__(self):
+        return self.name + '. Rol: ' + self.rol.title
+
 class Piloto(models.Model):
     name = models.CharField(max_length=100)
     expiration = models.DateField()
-
+    horas_voladas = models.FloatField(blank=True, null=True, default=0.0)
     
     class Meta:
         ordering = ('name',)
@@ -155,7 +176,7 @@ class Operacion(models.Model):
     created = models.DateTimeField(default=timezone.now, editable=True, blank=True)
     datecompleted = models.DateTimeField(null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    alumn = models.CharField(max_length=100, blank=True)
+    alumn = models.ForeignKey(Otro, on_delete=models.CASCADE, null=True, blank=True)
     mechanic = models.ForeignKey(Mecanico, related_name='operaciones', on_delete=models.CASCADE)
     fuel = models.IntegerField()
     used_fuel = models.IntegerField(blank=True, null=True)
@@ -184,6 +205,10 @@ class Operacion(models.Model):
     operation_note = models.TextField(blank=True)
     maintenance_note = models.TextField(blank=True)
 
+    class Meta:
+     
+        verbose_name_plural = 'Operaciones'
+
     def __str__(self):
         return self.title.title + ', ID: ' + str(self.id)
     
@@ -204,25 +229,29 @@ class Operacion(models.Model):
         # restar horas de vuelo a horas disponibles de aeronave
 
     def restar_horas_disponibles(self):
-        # Convertir los horarios de despegue y aterrizaje a datetime con fecha ficticia (hoy)
-        dt_despegue = datetime.combine(self.created, self.takeoff_time)
-        dt_aterrizaje = datetime.combine(self.created, self.landing_time)
+        if not self.pk: # Verificar si es una instancia recién creada
+            # Convertir los horarios de despegue y aterrizaje a datetime con fecha ficticia (hoy)
+            dt_despegue = datetime.combine(self.created, self.takeoff_time)
+            dt_aterrizaje = datetime.combine(self.created, self.landing_time)
 
-        # Si el horario de aterrizaje es anterior al horario de despegue, sumar 1 día a la fecha de aterrizaje
-        if dt_despegue > dt_aterrizaje:
-            dt_aterrizaje += timedelta(days=1)
+            # Si el horario de aterrizaje es anterior al horario de despegue, sumar 1 día a la fecha de aterrizaje
+            if dt_despegue > dt_aterrizaje:
+                dt_aterrizaje += timedelta(days=1)
 
-        # Calcular la diferencia de tiempo en segundos y convertir a horas enteras
-        segundos_de_vuelo = (dt_aterrizaje - dt_despegue).total_seconds()
-        horas_de_vuelo = float(segundos_de_vuelo / 3600)
+            # Calcular la diferencia de tiempo en segundos y convertir a horas enteras
+            segundos_de_vuelo = (dt_aterrizaje - dt_despegue).total_seconds()
+            horas_de_vuelo = float(segundos_de_vuelo / 3600)
 
-        # Restar las horas de vuelo a las horas disponibles de la aeronave
-        self.aeronave.horas_disponibles -= round(horas_de_vuelo, 2)
-        self.aeronave.horas_voladas += round(horas_de_vuelo, 2)
-
-        # Sumar ciclos motor
-        self.aeronave.ciclos_motor += self.start_up_cycles
-        self.aeronave.save()
+            # Restar las horas de vuelo a las horas disponibles de la aeronave
+            self.aeronave.horas_disponibles -= round(horas_de_vuelo, 2)
+            self.aeronave.horas_voladas += round(horas_de_vuelo, 2)
+            self.pilot.horas_voladas += round(horas_de_vuelo, 2)
+            self.alumn.horas_voladas += round(horas_de_vuelo, 2)
+            # Sumar ciclos motor
+            self.aeronave.ciclos_motor += self.start_up_cycles
+            self.aeronave.save()
+            self.pilot.save()
+            self.alumn.save()
 
     def save(self,*args,**kwargs):
         if self.created is None:

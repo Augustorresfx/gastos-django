@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Operacion, Aeronave, Mecanico, Razon, Operador, Cliente, Piloto, Impuesto, Categoria, Gasto, Base
+from .models import Operacion, Otro, Rol, Aeronave, Mecanico, Razon, Operador, Cliente, Piloto, Impuesto, Categoria, Gasto, Base
 
 class ProductAdmin(admin.ModelAdmin):
     fields = ()
@@ -17,3 +17,5 @@ admin.site.register(Cliente)
 admin.site.register(Gasto)
 admin.site.register(Impuesto)
 admin.site.register(Categoria)
+admin.site.register(Otro)
+admin.site.register(Rol)

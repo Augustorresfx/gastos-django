@@ -1,6 +1,6 @@
 from django.forms import ModelForm
 from django import forms
-from .models import Operacion, Aeronave, Gasto, Piloto, Mecanico
+from .models import Operacion, Aeronave, Gasto, Piloto, Mecanico, Otro
 
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -11,6 +11,16 @@ class ClientFilterForm(ModelForm):
         fields = [
             'title',
         ]
+
+class OtroForm(ModelForm):
+    class Meta:
+        model = Otro
+        fields = ['name', 'expiration', 'horas_voladas', 'rol']
+        widgets = {
+            'rol': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+        }
 
 class GastoForm(ModelForm):
     class Meta:
@@ -47,6 +57,9 @@ class ClientForm(ModelForm):
             'mechanic': forms.Select(attrs={
                 'class': 'form-select'
             }),
+            'alumn': forms.Select(attrs={
+                'class': 'form-select'
+            }),
             'reason_of_flight': forms.Select(attrs={
                 'class': 'form-select'
             }),
@@ -66,7 +79,7 @@ class AeronaveForm(ModelForm):
 class PilotoForm(ModelForm):
     class Meta:
         model = Piloto
-        fields = ['name', 'expiration']
+        fields = ['name', 'expiration', 'horas_voladas']
 
 class MecanicoForm(ModelForm):
     class Meta:

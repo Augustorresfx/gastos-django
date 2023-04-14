@@ -147,7 +147,6 @@ USE_TZ = True
 
 # Configuración de formatos de números
 
-USE_THOUSAND_SEPARATOR = True
 NUMBER_GROUPING = 3
 DECIMAL_SEPARATOR = '.'
 

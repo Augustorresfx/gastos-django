@@ -25,6 +25,7 @@
       <div class="card">
         <div class="card-body">
           <h5 class="card-title">{{piloto.name}}</h5>
+          <p class="card-text text-primary">Horas de vuelo: {{piloto.horas_voladas}}</p>
           <p class="card-text text-danger">Fecha de vencimiento: {{piloto.expiration}}.</p>
           <a href="{% url 'piloto_detail' piloto.id %}" class="btn btn-primary">Ver o editar</a>
           <button type="submit" class="w-10 btn btn-sm btn-danger eliminar-elemento confirmar-eliminar" data-url="{% url 'delete_piloto' piloto.id %}">

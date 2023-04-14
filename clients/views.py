@@ -3,8 +3,8 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.db import IntegrityError
-from .forms import ClientForm, ClientFilterForm, GastoForm, AeronaveForm, PilotoForm, MecanicoForm
-from .models import Operacion, Aeronave, Impuesto, Mecanico, Piloto
+from .forms import ClientForm, ClientFilterForm, GastoForm, AeronaveForm, OtroForm, PilotoForm, MecanicoForm
+from .models import Operacion, Aeronave, Impuesto, Mecanico, Piloto, Otro
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from .filters import ProductFilter
@@ -21,6 +21,7 @@ import os
 from io import BytesIO
 import smtplib
 from email.mime.text import MIMEText
+from django.db.models import Q
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
@@ -62,7 +63,7 @@ def signup(request):
                 password=request.POST['password1'])
                 user.save()
                 login(request, user)
-                return redirect('gastos')           
+                return redirect('vuelos')
             except IntegrityError:
                 return render(request, 'signup.html', {
                     'form': UserCreationForm,
@@ -88,7 +89,7 @@ def search_expenses(request):
 @login_required
 @user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
 
-def gastos(request):
+def vuelos(request):
   
     context = {}   
     
@@ -106,7 +107,7 @@ def gastos(request):
     context['form'] = filtered_clients.form
     context['pages'] = filter_pages
     
-    return render(request, 'gastos.html', context=context)
+    return render(request, 'vuelos/vuelos.html', context=context)
 
 @login_required
 @user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
@@ -120,7 +121,7 @@ def expensas(request):
     filter_pages = paginated_filter.get_page(page_number)
     context['pages'] = filter_pages
    
-    return render(request, 'expensas.html', context=context)
+    return render(request, 'expensas/expensas.html', context=context)
 
 @login_required
 @user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
@@ -128,7 +129,7 @@ def expensas(request):
 def create_expensa(request):
     if request.method == 'GET':
 
-        return render(request, 'create_expensa.html', {
+        return render(request, 'expensas/create_expensa.html', {
             'form': GastoForm,
         })
     else:
@@ -140,7 +141,7 @@ def create_expensa(request):
             new_client.save()
             return redirect('expensas')
         except ValueError:
-            return render(request, 'create_expensa.html', {
+            return render(request, 'expensas/create_expensa.html', {
                 'form': GastoForm,
                 'error': 'Please provide valid data'
             })
@@ -148,10 +149,10 @@ def create_expensa(request):
 @login_required
 @user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
 
-def create_gasto(request):
+def create_vuelo(request):
     if request.method == 'GET':
 
-        return render(request, 'create_gasto.html', {
+        return render(request, 'vuelos/create_vuelo.html', {
             'form': ClientForm,
 
         })
@@ -162,9 +163,9 @@ def create_gasto(request):
             new_client = form.save(commit=False)
             new_client.user = request.user
             new_client.save()
-            return redirect('gastos')
+            return redirect('vuelos')
         except ValueError:
-            return render(request, 'create_gasto.html', {
+            return render(request, 'vuelos/create_vuelo.html', {
                 'form': ClientForm,
                 'error': 'Please provide valid data'
             })
@@ -176,7 +177,7 @@ def expensa_detail(request, gasto_id):
     if request.method == 'GET':
         gasto = get_object_or_404(Gasto, pk=gasto_id)
         form = GastoForm(instance=gasto)
-        return render(request, 'expensa_detail.html', {'expensa': gasto, 'form': form})
+        return render(request, 'expensas/expensa_detail.html', {'expensa': gasto, 'form': form})
     else:
         try:
             gasto = get_object_or_404(Gasto, pk=gasto_id)
@@ -184,7 +185,7 @@ def expensa_detail(request, gasto_id):
             form.save()
             return redirect('expensas')
         except ValueError:
-            return render(request, 'expensa_detail.html', {'expensa': gasto, 'form': form, 'error': 'Error actualizando el gasto'})
+            return render(request, 'expensas/expensa_detail.html', {'expensa': gasto, 'form': form, 'error': 'Error actualizando el gasto'})
 
 
 @login_required
@@ -204,7 +205,7 @@ def delete_expensa(request, gasto_id):
             messages.success(request, 'Elemento eliminado correctamente')
             return redirect('expensas')
         else:
-            return render(request, 'delete_expensa.html', {'gasto': gasto})
+            return render(request, 'expensas/delete_expensa.html', {'gasto': gasto})
     else:
         messages.error(request, 'No tienes permiso para eliminar este elemento')
         return redirect('expensas')
@@ -212,19 +213,19 @@ def delete_expensa(request, gasto_id):
 @login_required
 @user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
 
-def gasto_detail(request, product_id):
+def vuelo_detail(request, product_id):
     if request.method == 'GET':
         product = get_object_or_404(Operacion, pk=product_id, user=request.user)
         form = ClientForm(instance=product)
-        return render(request, 'gasto_detail.html', {'client': product, 'form': form})
+        return render(request, 'vuelos/vuelo_detail.html', {'client': product, 'form': form})
     else:
         try:
             product = get_object_or_404(Operacion, pk=product_id)
             form = ClientForm(request.POST, instance=product)
             form.save()
-            return redirect('gastos')
+            return redirect('vuelos')
         except ValueError:
-            return render(request, 'gasto_detail.html', {'client': product, 'form': form, 'error': 'Error actualizando la operación'})
+            return render(request, 'vuelos/vuelo_detail.html', {'client': product, 'form': form, 'error': 'Error actualizando la operación'})
 
 def send_mail_with_excel(request):
     module_dir = os.path.dirname(__file__)   #get current directory
@@ -241,19 +242,28 @@ def send_mail_with_excel(request):
     # Obtener fecha y hora actual en la zona horaria del proyecto
     hoy = timezone.now().date()  # Obtiene la fecha actual
     objetos_hoy = Operacion.objects.filter(created__date=hoy)
-
     objetos_todos = Operacion.objects.all()
-
-    row = 9  # empezar a agregar en la fila 6
+    copilotos = Otro.objects.filter(rol__title='copiloto')
+    row = 8  # empezar a agregar en la fila 8
     col = 1  # agregar en la primera columna
     for product in objetos_todos:
         timeformat = "%H:%M:%S"
+        alumnos = Operacion.objects.filter(Q(alumn__rol__title='alumno'))
+    
+        instructores = Operacion.objects.filter(Q(alumn__rol__title='instructor'))
         delta = datetime.strptime(str(product.landing_time), timeformat) - datetime.strptime(str(product.takeoff_time), timeformat)
         combustible_usado = product.fuel - product.fuel_on_landing
+        data = []
+        if product.alumn.rol.title == 'Copiloto':
 
-
-        data = [product.title.title, product.takeoff_place, product.landing_place, product.created.strftime("%y %m %d"), product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.matricula, timedelta(seconds=delta.seconds), product.reason_of_flight.title, '', '', product.aeronave.horas_voladas, product.start_up_cycles, product.aeronave.horas_disponibles, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.engine_ignition_2, product.engine_cut_2, product.total_encendido_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.number_of_landings, product.number_of_splashdowns, product.water_release_cycles, product.water_release_amount]
+        #data = [product.title.title, product.takeoff_place, product.landing_place, product.created.strftime("%y %m %d"), product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.matricula, timedelta(seconds=delta.seconds), product.reason_of_flight.title, '', '', product.aeronave.horas_voladas, product.start_up_cycles, product.aeronave.horas_disponibles, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.engine_ignition_2, product.engine_cut_2, product.total_encendido_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.number_of_landings, product.number_of_splashdowns, product.water_release_cycles, product.water_release_amount]
+            data = [product.created.strftime("%Y"), product.created.strftime("%m"), product.created.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.pilot.horas_voladas), product.alumn.name + ": " + str(product.alumn.horas_voladas), product.number_of_landings, product.number_of_splashdowns, '', timedelta(seconds=delta.seconds), product.reason_of_flight.title, '', '', product.aeronave.horas_voladas, product.aeronave.ciclos_motor, product.aeronave.horas_disponibles, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.engine_ignition_2, product.engine_cut_2, product.total_encendido_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
         
+        elif product.alumn.rol.title == 'Instructor':
+            data = [product.created.strftime("%Y"), product.created.strftime("%m"), product.created.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.pilot.horas_voladas), '', product.number_of_landings, product.number_of_splashdowns, product.alumn.name + ": " + str(product.alumn.horas_voladas), timedelta(seconds=delta.seconds), product.reason_of_flight.title, '', '', product.aeronave.horas_voladas, product.aeronave.ciclos_motor, product.aeronave.horas_disponibles, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.engine_ignition_2, product.engine_cut_2, product.total_encendido_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
+        
+        else:
+            data = [product.created.strftime("%Y"), product.created.strftime("%m"), product.created.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.pilot.horas_voladas), '', product.number_of_landings, product.number_of_splashdowns, '', timedelta(seconds=delta.seconds), product.reason_of_flight.title, '', '', product.aeronave.horas_voladas, product.aeronave.ciclos_motor, product.aeronave.horas_disponibles, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.engine_ignition_2, product.engine_cut_2, product.total_encendido_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
         for i, val in enumerate(data):
             sheet.cell(row=row, column=col+i, value=val)
         row+=1
@@ -261,8 +271,8 @@ def send_mail_with_excel(request):
     excel_file = BytesIO()
     wb.save(excel_file)
     excel_file.seek(0)
-    destinatarios = ['gguerra@helicopterosdelpacifico.com.ar', 'augustorresfx@gmail.com', 'agustorres633@gmail.com']
-
+    destinatarios = ['augustorresfx@gmail.com', 'agustorres633@gmail.com']
+#'gguerra@helicopterosdelpacifico.com.ar'
     try:
         for destinatario in destinatarios:
 
@@ -306,7 +316,7 @@ def send_mail_with_excel(request):
         messages.error(request, 'Error enviando los correos electrónicos')
     
     
-    return redirect('gastos')
+    return redirect('vuelos')
 
 @login_required
 def export_excel(request):
@@ -353,18 +363,18 @@ def export_excel(request):
 #         return redirect('gastos')
 
 
-def delete_gasto(request, product_id):
+def delete_vuelo(request, product_id):
     product = get_object_or_404(Operacion, pk=product_id)
     if product.user == request.user or request.user.is_staff:
         if request.method == 'POST':
             product.delete()
             messages.success(request, 'Elemento eliminado correctamente')
-            return redirect('gastos')
+            return redirect('vuelos')
         else:
-            return render(request, 'delete_gasto.html', {'product': product})
+            return render(request, 'vuelos/delete_vuelo.html', {'product': product})
     else:
         messages.error(request, 'No tienes permiso para eliminar este elemento')
-        return redirect('gastos')
+        return redirect('vuelos')
 
 #  AERONAVES
 
@@ -379,7 +389,7 @@ def aeronaves(request):
     filter_pages = paginated_filter.get_page(page_number)
     context['pages'] = filter_pages
    
-    return render(request, 'aeronaves.html', context=context)
+    return render(request, 'aeronaves/aeronaves.html', context=context)
 
 @login_required
 @staff_required
@@ -387,7 +397,7 @@ def aeronaves(request):
 def create_aeronave(request):
     if request.method == 'GET':
 
-        return render(request, 'create_aeronave.html', {
+        return render(request, 'aeronaves/create_aeronave.html', {
             'form': AeronaveForm,
 
         })
@@ -400,7 +410,7 @@ def create_aeronave(request):
             new_client.save()
             return redirect('aeronaves')
         except ValueError:
-            return render(request, 'create_aeronave.html', {
+            return render(request, 'aeronaves/create_aeronave.html', {
                 'form': AeronaveForm,
                 'error': 'Please provide valid data'
             })
@@ -414,7 +424,7 @@ def aeronave_detail(request, aeronave_id):
         form = AeronaveForm(instance=aeronave)
         horas_voladas_formatted = "{:.2f}".format(aeronave.horas_voladas).replace(',', '.')
         horas_disponibles_formatted = "{:.2f}".format(aeronave.horas_disponibles).replace(',', '.')
-        return render(request, 'aeronave_detail.html', {'aeronave': aeronave, 'form': form, 'horas_voladas_formatted': horas_voladas_formatted, 'horas_disponibles_formatted': horas_disponibles_formatted})
+        return render(request, 'aeronaves/aeronave_detail.html', {'aeronave': aeronave, 'form': form, 'horas_voladas_formatted': horas_voladas_formatted, 'horas_disponibles_formatted': horas_disponibles_formatted})
     else:
         try:
             aeronave = get_object_or_404(Aeronave, pk=aeronave_id)
@@ -422,7 +432,7 @@ def aeronave_detail(request, aeronave_id):
             form.save()
             return redirect('aeronaves')
         except ValueError:
-            return render(request, 'aeronave_detail.html', {'aeronave': aeronave, 'form': form, 'error': 'Error actualizando la aeronave'})
+            return render(request, 'aeronaves/aeronave_detail.html', {'aeronave': aeronave, 'form': form, 'error': 'Error actualizando la aeronave'})
 
 
 @login_required
@@ -445,12 +455,12 @@ def pilotos(request):
   
     context = {}   
     context['pilotos'] = Piloto.objects.all()
-    paginated_filter = Paginator(Aeronave.objects.all(), 10)
+    paginated_filter = Paginator(Piloto.objects.all(), 10)
     page_number = request.GET.get("page")
     filter_pages = paginated_filter.get_page(page_number)
     context['pages'] = filter_pages
    
-    return render(request, 'pilotos.html', context=context)
+    return render(request, 'pilotos/pilotos.html', context=context)
 
 @login_required
 @staff_required
@@ -458,7 +468,7 @@ def pilotos(request):
 def create_piloto(request):
     if request.method == 'GET':
 
-        return render(request, 'create_piloto.html', {
+        return render(request, 'pilotos/create_piloto.html', {
             'form': PilotoForm,
 
         })
@@ -471,7 +481,7 @@ def create_piloto(request):
             new_client.save()
             return redirect('pilotos')
         except ValueError:
-            return render(request, 'create_piloto.html', {
+            return render(request, 'pilotos/create_piloto.html', {
                 'form': PilotoForm,
                 'error': 'Please provide valid data'
             })
@@ -483,7 +493,8 @@ def piloto_detail(request, piloto_id):
     if request.method == 'GET':
         piloto = get_object_or_404(Piloto, pk=piloto_id)
         form = PilotoForm(instance=piloto)
-        return render(request, 'piloto_detail.html', {'piloto': piloto, 'form': form})
+        horas_voladas_formatted = "{:.2f}".format(piloto.horas_voladas).replace(',', '.')
+        return render(request, 'pilotos/piloto_detail.html', {'piloto': piloto, 'form': form, 'horas_voladas_formatted': horas_voladas_formatted,})
     else:
         try:
             piloto = get_object_or_404(Piloto, pk=piloto_id)
@@ -491,7 +502,7 @@ def piloto_detail(request, piloto_id):
             form.save()
             return redirect('pilotos')
         except ValueError:
-            return render(request, 'piloto_detail.html', {'piloto': piloto, 'form': form, 'error': 'Error actualizando la aeronave'})
+            return render(request, 'pilotos/piloto_detail.html', {'piloto': piloto, 'form': form, 'error': 'Error actualizando el piloto'})
 
 
 @login_required
@@ -514,12 +525,12 @@ def mecanicos(request):
   
     context = {}   
     context['mecanicos'] = Mecanico.objects.all()
-    paginated_filter = Paginator(Aeronave.objects.all(), 10)
+    paginated_filter = Paginator(Mecanico.objects.all(), 10)
     page_number = request.GET.get("page")
     filter_pages = paginated_filter.get_page(page_number)
     context['pages'] = filter_pages
    
-    return render(request, 'mecanicos.html', context=context)
+    return render(request, 'mecanicos/mecanicos.html', context=context)
 
 @login_required
 @staff_required
@@ -527,7 +538,7 @@ def mecanicos(request):
 def create_mecanico(request):
     if request.method == 'GET':
 
-        return render(request, 'create_mecanico.html', {
+        return render(request, 'mecanicos/create_mecanico.html', {
             'form': MecanicoForm,
 
         })
@@ -540,7 +551,7 @@ def create_mecanico(request):
             new_client.save()
             return redirect('mecanicos')
         except ValueError:
-            return render(request, 'create_mecanico.html', {
+            return render(request, 'mecanicos/create_mecanico.html', {
                 'form': MecanicoForm,
                 'error': 'Please provide valid data'
             })
@@ -552,7 +563,7 @@ def mecanico_detail(request, mecanico_id):
     if request.method == 'GET':
         mecanico = get_object_or_404(Mecanico, pk=mecanico_id)
         form = MecanicoForm(instance=mecanico)
-        return render(request, 'mecanico_detail.html', {'mecanico': mecanico, 'form': form})
+        return render(request, 'mecanicos/mecanico_detail.html', {'mecanico': mecanico, 'form': form})
     else:
         try:
             mecanico = get_object_or_404(Mecanico, pk=mecanico_id)
@@ -560,8 +571,7 @@ def mecanico_detail(request, mecanico_id):
             form.save()
             return redirect('mecanicos')
         except ValueError:
-            return render(request, 'mecanico_detail.html', {'mecanico': mecanico, 'form': form, 'error': 'Error actualizando la aeronave'})
-
+            return render(request, 'mecanicos/mecanico_detail.html', {'mecanico': mecanico, 'form': form, 'error': 'Error actualizando el mecánico'})
 
 @login_required
 @staff_required
@@ -573,6 +583,75 @@ def delete_mecanico(request, mecanico_id):
         return redirect('mecanicos')
 
 # FIN MECANICOS
+
+# INICIO OTROS
+@login_required
+@staff_required
+
+def otros(request):
+  
+    context = {}   
+    context['otros'] = Otro.objects.all()
+    paginated_filter = Paginator(Otro.objects.all(), 10)
+    page_number = request.GET.get("page")
+    filter_pages = paginated_filter.get_page(page_number)
+    context['pages'] = filter_pages
+   
+    return render(request, 'otros/otros.html', context=context)
+
+@login_required
+@staff_required
+
+def create_otro(request):
+    if request.method == 'GET':
+
+        return render(request, 'otros/create_otro.html', {
+            'form': OtroForm,
+
+        })
+    else:
+        try:
+            
+            form = OtroForm(request.POST)
+            new_client = form.save(commit=False)
+            new_client.user = request.user
+            new_client.save()
+            return redirect('otros')
+        except ValueError:
+            return render(request, 'otros/create_otro.html', {
+                'form': OtroForm,
+                'error': 'Please provide valid data'
+            })
+
+@login_required
+@staff_required
+
+def otro_detail(request, otro_id):
+    if request.method == 'GET':
+        otro = get_object_or_404(Otro, pk=otro_id)
+        horas_voladas_formatted = "{:.2f}".format(otro.horas_voladas).replace(',', '.')
+        form = OtroForm(instance=otro)
+        return render(request, 'otros/otro_detail.html', {'otro': otro, 'form': form, 'horas_voladas_formatted': horas_voladas_formatted,})
+    else:
+        try:
+            otro = get_object_or_404(Otro, pk=otro_id)
+            form = OtroForm(request.POST, instance=otro)
+            form.save()
+            return redirect('otros')
+        except ValueError:
+            return render(request, 'otros/otro_detail.html', {'otro': otro, 'form': form, 'error': 'Error actualizando'})
+
+
+@login_required
+@staff_required
+
+def delete_otro(request, otro_id):
+    otro = get_object_or_404(Otro, pk=otro_id)
+    if request.method == 'POST':
+        otro.delete()
+        return redirect('otros')
+
+# FIN OTROS
 @login_required
 
 def signout(request):
@@ -595,4 +674,4 @@ def signin(request):
             })
         else:
             login(request, user)
-            return redirect('gastos')
+            return redirect('vuelos')

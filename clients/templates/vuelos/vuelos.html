@@ -20,7 +20,7 @@
    {% endif %}
 
       <div class="d-flex justify-content-start align-items-center my-2">
-        <a href="/gastos/create/" class="btn btn-outline-primary my-2 d-flex justify-content-center align-items-center mx-2">
+        <a href="/vuelos/create/" class="btn btn-outline-primary my-2 d-flex justify-content-center align-items-center mx-2">
           <span class="material-icons-outlined ">
             add 
             </span>
@@ -49,7 +49,7 @@
  <div class="collapse" id="layouts">
          
 
-                      <form method="GET" action="{% url 'gastos' %}">
+                      <form method="GET" action="{% url 'vuelos' %}">
      
              
                         {% csrf_token %}
@@ -62,7 +62,7 @@
                         </div>
                      
                         <div class="p-2 bd-highlight">
-                          <a class="btn btn-sm btn-outline-danger" href="/gastos/">Eliminar filtros</a>
+                          <a class="btn btn-sm btn-outline-danger" href="/vuelos/">Eliminar filtros</a>
                         </div>
                       </div>
                 
@@ -84,7 +84,7 @@
                   <th scope="col">Matrícula</th>
                   <th scope="col">Creador</th>
                   <th scope="col">Fecha</th>
-                  <th scope="col">Alumno/Instructor</th>
+                  <th scope="col">Alumno/Instructor/Copiloto</th>
                   <th scope="col">Mecánico</th>
                   <th scope="col">Combustible usado</th>
                   <th scope="col">Combustible al despegue</th>
@@ -156,13 +156,13 @@
 
 
                     <td>
-                      <a class="w-10 btn btn-sm btn-primary" href="{% url 'gasto_detail' product.id %}">
+                      <a class="w-10 btn btn-sm btn-primary" href="{% url 'vuelo_detail' product.id %}">
                         <span data-feather="edit"></span>
                         Editar
                       </a>
                     </td>
                     <td>
-                      <button type="submit" class="w-10 btn btn-sm btn-danger eliminar-elemento confirmar-eliminar" data-url="{% url 'delete_gasto' product.id %}">
+                      <button type="submit" class="w-10 btn btn-sm btn-danger eliminar-elemento confirmar-eliminar" data-url="{% url 'delete_vuelo' product.id %}">
                         Eliminar
                       </button>
                  

@@ -5,7 +5,7 @@
     <main class="mt-5 pt-3">
         <div class="row">
             <div class="col-md-4 offset-md-4 mt-5">
-                <form action="/gastos/create/" method="POST" class="card card-body ">
+                <form action="/vuelos/create/" method="POST" class="card card-body ">
                     <h1 class="text-center">
                         Crear operación
                     </h1>
@@ -32,8 +32,7 @@
 
                     <div class="mb-3">
                         <label for="alumn">Alumnos / Inspector / Copiloto (Cuando ocurra):</label>
-                        <input type="text" name="alumn" id="alumn"
-                        class="form-control" placeholder="Escribe su nombre">
+                        {{form.alumn}}
                     </div>
 
                     <div class="mb-3">
