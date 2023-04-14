@@ -246,12 +246,15 @@ class Operacion(models.Model):
             self.aeronave.horas_disponibles -= round(horas_de_vuelo, 2)
             self.aeronave.horas_voladas += round(horas_de_vuelo, 2)
             self.pilot.horas_voladas += round(horas_de_vuelo, 2)
-            self.alumn.horas_voladas += round(horas_de_vuelo, 2)
+            if self.alumn:
+                self.alumn.horas_voladas += round(horas_de_vuelo, 2)
+                self.alumn.save()
+
             # Sumar ciclos motor
             self.aeronave.ciclos_motor += self.start_up_cycles
             self.aeronave.save()
             self.pilot.save()
-            self.alumn.save()
+
 
     def save(self,*args,**kwargs):
         if self.created is None:
