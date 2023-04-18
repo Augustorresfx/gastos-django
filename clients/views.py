@@ -275,7 +275,7 @@ def send_mail_with_excel(request):
     wb.save(excel_file)
     excel_file.seek(0)
 
-    destinatarios = ['gguerra@helicopterosdelpacifico.com.ar', 'augustorresfx@gmail.com', 'agustorres633@gmail.com']
+    destinatarios = ['gguerra@helicopterosdelpacifico.com.ar', 'augustorresfx@gmail.com']
 
     try:
         for destinatario in destinatarios:
