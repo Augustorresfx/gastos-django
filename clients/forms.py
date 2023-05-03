@@ -39,8 +39,8 @@ class ClientForm(ModelForm):
     class Meta:
         model = Operacion
         fields = ['title', 'aeronave', 'pilot', 'alumn', 'mechanic', 'fuel', 'takeoff_place', 
-                  'landing_place', 'engine_ignition_1', 'engine_ignition_2', 'takeoff_time', 'landing_time', 
-                  'engine_cut_1', 'engine_cut_2', 'number_of_landings', 'number_of_splashdowns', 'start_up_cycles', 'fuel_on_landing',
+                  'landing_place', 'engine_ignition_1', 'takeoff_time', 'landing_time', 
+                  'engine_cut_1', 'number_of_landings', 'number_of_splashdowns', 'start_up_cycles', 'fuel_on_landing',
                     'water_release_cycles', 'water_release_amount', 'cycles_with_external_load', 
                   'weight_with_external_load', 'reason_of_flight', 'other_reason', 'operator', 'client', 'operation_note', 'maintenance_note'
                   ]
@@ -69,8 +69,9 @@ class ClientForm(ModelForm):
             'client': forms.Select(attrs={
                 'class': 'form-select'
             })
-        
+            
         }
+        widgets['alumn'].required = False  # Make 'alumn' optional
 class AeronaveForm(ModelForm):
     class Meta:
         model = Aeronave

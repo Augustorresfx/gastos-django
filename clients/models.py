@@ -183,13 +183,17 @@ class Operacion(models.Model):
     takeoff_place = models.CharField(max_length=100)
     landing_place = models.CharField(max_length=100)
     engine_ignition_1 = models.TimeField()
-    engine_ignition_2 = models.TimeField(blank=True, null=True)
+
     takeoff_time = models.TimeField()
     landing_time = models.TimeField()
     engine_cut_1 = models.TimeField()
-    engine_cut_2 = models.TimeField(blank=True, null=True)
+
     total_encendido_1 = models.DurationField(blank=True, null=True)
-    total_encendido_2 = models.DurationField(blank=True, null=True)
+    total_horas_aeronave = models.FloatField(blank=True, null=True, default=0.0)
+    total_horas_disponibles_aeronave = models.FloatField(blank=True, null=True, default=0.0)
+    total_horas_piloto = models.FloatField(blank=True, null=True, default=0.0)
+    total_horas_alumn = models.FloatField(blank=True, null=True, default=0.0)
+    total_ciclos_encendido = models.IntegerField(blank=True, null=True, default=0)
     number_of_landings = models.IntegerField()
     number_of_splashdowns = models.IntegerField(blank=True, null=True)
     start_up_cycles = models.IntegerField()
@@ -243,17 +247,24 @@ class Operacion(models.Model):
             horas_de_vuelo = float(segundos_de_vuelo / 3600)
 
             # Restar las horas de vuelo a las horas disponibles de la aeronave
+            
             self.aeronave.horas_disponibles -= round(horas_de_vuelo, 2)
             self.aeronave.horas_voladas += round(horas_de_vuelo, 2)
             self.pilot.horas_voladas += round(horas_de_vuelo, 2)
             if self.alumn:
                 self.alumn.horas_voladas += round(horas_de_vuelo, 2)
                 self.alumn.save()
+                self.total_horas_alumn = self.alumn.horas_voladas
 
             # Sumar ciclos motor
             self.aeronave.ciclos_motor += self.start_up_cycles
             self.aeronave.save()
             self.pilot.save()
+            self.total_ciclos_encendido = self.aeronave.ciclos_motor
+            self.total_horas_aeronave = self.aeronave.horas_voladas
+            self.total_horas_disponibles_aeronave = self.aeronave.horas_disponibles
+            self.total_horas_piloto = self.pilot.horas_voladas
+
 
 
     def save(self,*args,**kwargs):
@@ -263,9 +274,7 @@ class Operacion(models.Model):
         if self.engine_cut_1 and self.engine_ignition_1:
             total_encendido_1 = datetime.combine(datetime.today(), self.engine_cut_1) - datetime.combine(datetime.today(), self.engine_ignition_1)
             self.total_encendido_1 = timedelta(hours=total_encendido_1.seconds // 3600, minutes=total_encendido_1.seconds // 60 % 60)
-        if self.engine_cut_2 and self.engine_ignition_2:
-            total_encendido_2 = datetime.combine(datetime.today(), self.engine_cut_2) - datetime.combine(datetime.today(), self.engine_ignition_2)
-            self.total_encendido_2 = timedelta(hours=total_encendido_2.seconds // 3600, minutes=total_encendido_2.seconds // 60 % 60)
+        
         # Guarda el combustible usado
         self.used_fuel = int(self.calcular_combustible_usado())
         super().save(*args, **kwargs)
