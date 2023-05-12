@@ -95,7 +95,7 @@ def vuelos(request):
     
     filtered_clients = ProductFilter(
         request.GET, 
-        queryset=Operacion.objects.all(),
+        queryset=Operacion.objects.all().order_by('-id'),
 
         )
 

@@ -55,6 +55,7 @@ class ProductFilter(django_filters.FilterSet):
             })
 
         }
+   
 
 def __init__(self, *args, **kwargs):
     super(ProductFilter, self).__init__(*args, **kwargs)
