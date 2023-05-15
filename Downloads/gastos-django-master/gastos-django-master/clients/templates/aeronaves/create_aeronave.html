@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  
+    <main class="mt-5 pt-3">
+        <div class="row">
+            <div class="col-md-4 offset-md-4 mt-5">
+                <form action="/aeronaves/create/" method="POST" class="card card-body ">
+                    <h1 class="text-center">
+                        Crear aeronave
+                    </h1>
+
+                    {{error}}
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="title">Titulo:</label>
+                        <input type="text" name="title" id="title"
+                        class="form-control" placeholder="Escribe un titulo para la aeronave">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description">Matricula:</label>
+                        <input type="text" name="matricula" id="matricula"
+                        class="form-control" placeholder="Escribe la matricula de la aeronave">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description">Horas de vuelo disponibles:</label>
+                        <input type="float" name="horas_disponibles" id="horas_disponibles"
+                        class="form-control" placeholder="Escribe el número de horas disponibles" value="0.0">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description">Horas de vuelo usadas:</label>
+                        <input type="float" name="horas_voladas" id="horas_voladas"
+                        class="form-control" placeholder="Escribe el número de horas usadas" value="0.0"> 
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description">Ciclos motor:</label>
+                        <input type="float" name="ciclos_motor" id="ciclos_motor" 
+                        class="form-control" placeholder="Escribe el número de ciclos de motor" value="0">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="expiration">Fecha de vencimiento del 337:</label>
+                        <input type="date" name="expiration" id="expiration"
+                        class="form-control" placeholder="Fecha de vencimiento del 337">
+                    </div>
+
+                    
+                    <div class="mb-3">
+                        <label for="expiration">Fecha de vencimiento de alquiler anexo 2:</label>
+                        <input type="date" name="vencimiento_anexo_2" id="vencimiento_anexo_2"
+                        class="form-control" placeholder="Fecha de vencimiento de alquiler anexo 2">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="expiration">Fecha vencimiento inspeccion anual o calendario:</label>
+                        <input type="date" name="vencimiento_inspeccion_anual" id="vencimiento_inspeccion_anual"
+                        class="form-control" placeholder="Fecha de vencimiento inspeccion anual">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="expiration">Fecha de vencimiento notaciones de requerimiento de la aeronave:</label>
+                        <input type="date" name="vencimiento_notaciones_requerimiento" id="vencimiento_notaciones_requerimiento"
+                        class="form-control" placeholder="Fecha de vencimiento notaciones de requerimiento">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Crear
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+{% endblock %}
