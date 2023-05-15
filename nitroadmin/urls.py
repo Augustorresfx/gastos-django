@@ -48,6 +48,8 @@ urlpatterns = [
     path('expensas/create/', views.create_expensa, name="crear_expensa"),
     path('expensas/<int:gasto_id>/', views.expensa_detail, name='expensa_detail'),
     path('expensas/<int:gasto_id>/delete/', views.delete_expensa, name='delete_expensa'),
+    path('expensas/export_excel', views.expensas_export_excel, name="expensas_export_excel"),
+    path('expensas/export_excel_gmail', views.expensas_send_mail_with_excel, name="expensas_send_mail_with_excel"),
     path('logout/', views.signout, name='logout'),
     path('search-expenses', csrf_exempt(views.search_expenses),
          name="search_expenses"),

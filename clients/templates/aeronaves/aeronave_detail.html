@@ -52,7 +52,44 @@
                         class="form-control" placeholder="Fecha de expiración del 337">
                     </div>
 
+                    <div class="mb-3">
+                        <label for="expiration">Fecha de vencimiento de alquiler anexo 2:</label>
+                        <input type="date" name="vencimiento_anexo_2" id="vencimiento_anexo_2"
+                        class="form-control" placeholder="Fecha de vencimiento de alquiler anexo 2" value="{{ aeronave.vencimiento_anexo_2|date:"Y-m-d" }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="expiration">Fecha vencimiento inspeccion anual o calendario:</label>
+                        <input type="date" name="vencimiento_inspeccion_anual" id="vencimiento_inspeccion_anual"
+                        class="form-control" placeholder="Fecha de vencimiento inspeccion anual" value="{{ aeronave.vencimiento_inspeccion_anual|date:"Y-m-d" }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="expiration">Fecha de vencimiento notaciones de requerimiento de la aeronave:</label>
+                        <input type="date" name="vencimiento_notaciones_requerimiento" id="vencimiento_notaciones_requerimiento"
+                        class="form-control" placeholder="Fecha de vencimiento notaciones de requerimiento" value="{{ aeronave.vencimiento_notaciones_requerimiento|date:"Y-m-d" }}">
+                    </div>
 
+                    <div class="mb-3">
+                        
+                        <label for="description">Remanente inspecciones varias (25hs):</label>
+                        <input type="number" step="any" name="horas_inspecciones_varias_25" id="horas_inspecciones_varias_25" value="{{ horas_inspecciones_varias_25_formatted }}"
+                        class="form-control" placeholder="Escribe el número de horas disponibles">
+                    </div>
+
+                    <div class="mb-3">
+                        
+                        <label for="description">Remanente inspecciones varias (50hs):</label>
+                        <input type="number" step="any" name="horas_inspecciones_varias_50" id="horas_inspecciones_varias_50" value="{{ horas_inspecciones_varias_50_formatted }}"
+                        class="form-control" placeholder="Escribe el número de horas disponibles">
+                    </div>
+
+                    <div class="mb-3">
+                        
+                        <label for="description">Remanente inspecciones varias (100hs):</label>
+                        <input type="number" step="any" name="horas_inspecciones_varias_100" id="horas_inspecciones_varias_100" value="{{ horas_inspecciones_varias_100_formatted }}"
+                        class="form-control" placeholder="Escribe el número de horas disponibles">
+                    </div>
 
                     <button type="submit" class="btn btn-primary">
                         Editar

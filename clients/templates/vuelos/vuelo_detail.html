@@ -41,6 +41,18 @@
                 </div>
 
                 <div class="mb-3">
+                    <label for="cant_pasajeros">Cantidad de pasajeros:</label>
+                    <input type="number" name="cant_pasajeros" id="cant_pasajeros"
+                    class="form-control" placeholder="Escribe la cantidad de pasajeros" value="{{client.cant_pasajeros}}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="fecha">Fecha de vuelo:</label>
+                    <input type="date" name="fecha" id="fecha"
+                    class="form-control" placeholder="Ingresa la fecha de vuelo: " value="{{ client.fecha|date:"Y-m-d" }}">
+                </div>
+
+                <div class="mb-3">
                     <label for="title">Combustible cargado para el vuelo:</label>
                     <input type="number" name="fuel" id="fuel"
                     class="form-control" placeholder="Escribe la cantidad de litros" value="{{ client.fuel }}">

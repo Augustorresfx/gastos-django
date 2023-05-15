@@ -39,15 +39,27 @@
                         <label for="mechanic">Mecánico:</label>
                         {{ form.mechanic }}
                     </div>
+                    
+                    <div class="mb-3">
+                        <label for="cant_pasajeros">Cantidad de pasajeros:</label>
+                        <input type="number" name="cant_pasajeros" id="cant_pasajeros"
+                        class="form-control" placeholder="Escribe la cantidad de pasajeros">
+                    </div>
 
                     <div class="mb-3">
-                        <label for="title">Cantidad de combustible al despegue:</label>
+                        <label for="fecha">Fecha de vuelo:</label>
+                        <input type="date" name="fecha" id="fecha"
+                        class="form-control" placeholder="Ingresa la fecha de vuelo: ">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="title">Cantidad de combustible al despegue (litros):</label>
                         <input type="number" name="fuel" id="fuel"
                         class="form-control" placeholder="Escribe la cantidad de litros">
                     </div>
 
                     <div class="mb-3">
-                        <label for="title">Cantidad de combustible al aterrizaje:</label>
+                        <label for="title">Cantidad de combustible al aterrizaje (litros):</label>
                         <input type="number" name="fuel_on_landing" id="fuel_on_landing"
                         class="form-control" placeholder="Escribe la cantidad de litros">
                     </div>
@@ -120,7 +132,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="title">Cantidad de agua lanzada:</label>
+                        <label for="title">Cantidad de agua lanzada (litros):</label>
                         <input type="number" name="water_release_amount" id="water_release_amount"
                         class="form-control" value="0" placeholder="Escribe la cantidad de agua lanzada">
                     </div>
@@ -132,7 +144,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="title">Peso con carga externa:</label>
+                        <label for="title">Peso con carga externa (kilogramos):</label>
                         <input type="number" name="weight_with_external_load" id="weight_with_external_load"
                         class="form-control" value="0" placeholder="Escribe el peso con carga externa">
                     </div>

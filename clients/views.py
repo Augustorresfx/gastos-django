@@ -4,10 +4,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.db import IntegrityError
 from .forms import ClientForm, ClientFilterForm, GastoForm, AeronaveForm, OtroForm, PilotoForm, MecanicoForm
-from .models import Operacion, Aeronave, Impuesto, Mecanico, Piloto, Otro
+from .models import Operacion, Aeronave, Mecanico, Piloto, Otro
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from .filters import ProductFilter
+from .filters import ProductFilter, GastosFilter
 from django.http import HttpResponse
 import xlwt
 from datetime import timedelta, datetime, date, time
@@ -95,7 +95,7 @@ def vuelos(request):
     
     filtered_clients = ProductFilter(
         request.GET, 
-        queryset=Operacion.objects.all().order_by('-id'),
+        queryset=Operacion.objects.all().order_by('-fecha'),
 
         )
 
@@ -114,9 +114,14 @@ def vuelos(request):
 
 def expensas(request):
   
-    context = {}   
-    context['clients'] = Gasto.objects.all()
-    paginated_filter = Paginator(Gasto.objects.all(), 3)
+    context = {}
+    filtered_clients = GastosFilter(
+        request.GET, 
+        queryset=Gasto.objects.all().order_by('-id'),
+
+        )
+    context['clients'] = filtered_clients
+    paginated_filter = Paginator(Gasto.objects.all(), 10)
     page_number = request.GET.get("page")
     filter_pages = paginated_filter.get_page(page_number)
     context['pages'] = filter_pages
@@ -161,14 +166,33 @@ def create_vuelo(request):
             
             form = ClientForm(request.POST)
             new_client = form.save(commit=False)
+            hora_despuegue = new_client.takeoff_time
+            hora_aterrizaje = new_client.landing_time
+            hora_encendido = new_client.engine_ignition_1
+            hora_corte = new_client.engine_cut_1
+            if hora_aterrizaje < hora_despuegue:
+                raise ValueError("La hora de aterrizaje no puede ser anterior a la hora de despegue.")
+            if hora_corte < hora_encendido:
+                raise ValueError("La hora de puesta en marcha no puede ser anterior a la hora de corte de motor.")
             new_client.user = request.user
             new_client.save()
             return redirect('vuelos')
-        except ValueError:
-            return render(request, 'vuelos/create_vuelo.html', {
-                'form': ClientForm,
-                'error': 'Please provide valid data'
-            })
+        except ValueError as e:
+            if str(e) == "La hora de aterrizaje no puede ser anterior a la hora de despegue.":
+                return render(request, 'vuelos/create_vuelo.html', {
+                    'form': ClientForm,
+                    'error': str(e)
+                })
+            elif str(e) == "La hora de puesta en marcha no puede ser anterior a la hora de corte de motor.":
+                return render(request, 'vuelos/create_vuelo.html', {
+                    'form': ClientForm,
+                    'error': str(e)
+                })
+            else:
+                return render(request, 'vuelos/create_vuelo.html', {
+                    'form': ClientForm,
+                    'error': 'Please provide valid data.'
+                })
 
 @login_required
 @user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
@@ -177,7 +201,12 @@ def expensa_detail(request, gasto_id):
     if request.method == 'GET':
         gasto = get_object_or_404(Gasto, pk=gasto_id)
         form = GastoForm(instance=gasto)
-        return render(request, 'expensas/expensa_detail.html', {'expensa': gasto, 'form': form})
+        subtotal_formatted = "{:.2f}".format(gasto.subtotal).replace(',', '.')
+        iva_total_formatted = "{:.2f}".format(gasto.iva_total).replace(',', '.')
+        concepto_no_grabado_total_formatted = "{:.2f}".format(gasto.concepto_no_grabado_total).replace(',', '.')
+        impuesto_vario_total_formatted = "{:.2f}".format(gasto.impuesto_vario_total).replace(',', '.')
+        
+        return render(request, 'expensas/expensa_detail.html', {'expensa': gasto, 'form': form, 'subtotal_formatted': subtotal_formatted, 'iva_total_formatted': iva_total_formatted, 'concepto_no_grabado_total_formatted': concepto_no_grabado_total_formatted, 'impuesto_vario_total_formatted': impuesto_vario_total_formatted})
     else:
         try:
             gasto = get_object_or_404(Gasto, pk=gasto_id)
@@ -210,22 +239,173 @@ def delete_expensa(request, gasto_id):
         messages.error(request, 'No tienes permiso para eliminar este elemento')
         return redirect('expensas')
 
+# EXCEL DE EXPENSAS
+@login_required
+@user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
+
+def expensas_send_mail_with_excel(request):
+    module_dir = os.path.dirname(__file__)   #get current directory
+    file_path = os.path.join(module_dir, 'static/Reporte_expensas.xlsx')   #full path to text.
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=Reporte_expensas ' + \
+    str(timezone.now().date())+'.xlsx'
+    path = file_path
+    wb = load_workbook(path)
+    wb.iso_dates = True
+    sheet = wb.active
+    max_col = sheet.max_column
+
+    # Obtener fecha y hora actual en la zona horaria del proyecto
+    hoy = timezone.now().date()  # Obtiene la fecha actual
+    objetos_hoy = Gasto.objects.filter(created__date=hoy)
+    objetos_todos = Gasto.objects.all()
+
+    row = 8  # empezar a agregar en la fila 8
+    col = 1  # agregar en la primera columna
+    for product in objetos_todos:
+        timeformat = "%H:%M:%S"
+       
+        data = []
+        if product.base:
+            data = [product.id, product.base.title,'', '', product.responsable.username, product.categoria.title, product.fecha_compra, product.numero_compra, product.cuit, product.moneda.representacion, product.subtotal, product.concepto_no_grabado.title, product.concepto_no_grabado_total, product.iva.title, product.iva_total, product.impuesto_vario.title, product.impuesto_vario_total, product.moneda.representacion + str(product.total)]
+        elif product.aeronave:
+            data = [product.id, '', product.aeronave.title, '', product.responsable.username, product.categoria.title, product.fecha_compra, product.numero_compra, product.cuit, product.moneda.representacion, product.subtotal, product.concepto_no_grabado.title, product.concepto_no_grabado_total, product.iva.title, product.iva_total, product.impuesto_vario.title, product.impuesto_vario_total, product.moneda.representacion + str(product.total)]
+        elif product.traslado:
+            data = [product.id, '', '', product.traslado.title, product.responsable.username, product.categoria.title, product.fecha_compra, product.numero_compra, product.cuit, product.moneda.representacion, product.subtotal, product.concepto_no_grabado.title, product.concepto_no_grabado_total, product.iva.title, product.iva_total, product.impuesto_vario.title, product.impuesto_vario_total, product.moneda.representacion + str(product.total)]
+        else:
+            data = [product.id, '', '', '', product.responsable.username, product.categoria.title, product.fecha_compra, product.numero_compra, product.cuit, product.moneda.representacion, product.subtotal, product.concepto_no_grabado.title, product.concepto_no_grabado_total, product.iva.title, product.iva_total, product.impuesto_vario.title, product.impuesto_vario_total, product.moneda.representacion + str(product.total)]
+        for i, val in enumerate(data):
+            sheet.cell(row=row, column=col+i, value=val)
+        row+=1
+
+    excel_file = BytesIO()
+    wb.save(excel_file)
+    excel_file.seek(0)
+
+    destinatarios = ['gdguerra07@gmail.com', 'gguerra@helicopterosdelpacifico.com.ar', 'augustorresfx@gmail.com']
+    destinatarios2 = ['augustorresfx@gmail.com']
+    try:
+        for destinatario in destinatarios:
+
+            msg = MIMEMultipart()
+            msg['From'] = 'no.reply.wings@gmail.com'
+            msg['To'] = destinatario
+
+            msg['Subject'] = 'Su reporte de expensas'
+
+            part = MIMEBase('application', 'octet-stream')
+            part.set_payload((excel_file).read())
+            encoders.encode_base64(part)
+            part.add_header('Content-Disposition', 'attachment', filename='Reporte_expensas' + \
+            str(datetime.now())+'.xlsx')
+            msg.attach(part)
+
+            html = """\
+                <html>
+                <head></head>
+                <body>
+                    <h1>Estimado/a,</h1>
+                    <h2>Adjunto encontrará el archivo de Excel con los datos solicitados:</h2>
+                </body>
+                </html>
+                """
+            msg.attach(MIMEText(html, 'html'))
+
+            # Conectar y enviar el correo electrónico
+            smtp_server = 'smtp.gmail.com'  # Cambia esto a tu servidor SMTP
+            smtp_port = 587  # Cambia esto al puerto de tu servidor SMTP
+            smtp_user = os.getenv('SMTP_USER')
+            smtp_password = os.getenv('SMTP_PASSWORD')  # Cambia esto a tu contraseña SMTP
+            smtp_connection = smtplib.SMTP(smtp_server, smtp_port)
+            smtp_connection.starttls()
+            smtp_connection.login(smtp_user, smtp_password)
+            smtp_connection.sendmail(smtp_user, msg['To'], msg.as_string())
+            smtp_connection.quit()
+            excel_file.seek(0)
+        messages.success(request, 'Los correos electrónicos se enviaron correctamente')
+    except:
+        messages.error(request, 'Error enviando los correos electrónicos')
+    
+    
+    return redirect('vuelos')
+
+@login_required
+@user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
+
+def expensas_export_excel(request):
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=Reporte_expensas ' + \
+        str(timezone.now().date())+'.xlsx'
+    module_dir = os.path.dirname(__file__)   #get current directory
+    file_path = os.path.join(module_dir, 'static/Reporte_expensas.xlsx')   #full path to text.
+    path = file_path
+    wb = load_workbook(path)
+    wb.iso_dates = True
+    sheet = wb.active
+    max_col = sheet.max_column
+
+    
+    hoy = timezone.now().date()  # Obtiene la fecha actual
+    objetos_hoy = Gasto.objects.filter(created__date=hoy)
+
+    objetos_todos = Gasto.objects.all()
+    row = 8  # empezar a agregar en la fila 8
+    col = 1  # agregar en la primera columna
+    for product in objetos_todos:
+        timeformat = "%H:%M:%S"
+       
+        data = []
+        if product.base:
+            data = [product.id, product.base.title,'', '', product.responsable.username, product.categoria.title, product.fecha_compra, product.numero_compra, product.cuit, product.moneda.representacion, product.subtotal, product.concepto_no_grabado.title, product.concepto_no_grabado_total, product.iva.title, product.iva_total, product.impuesto_vario.title, product.impuesto_vario_total, product.moneda.representacion + str(product.total)]
+        elif product.aeronave:
+            data = [product.id, '', product.aeronave.title, '', product.responsable.username, product.categoria.title, product.fecha_compra, product.numero_compra, product.cuit, product.moneda.representacion, product.subtotal, product.concepto_no_grabado.title, product.concepto_no_grabado_total, product.iva.title, product.iva_total, product.impuesto_vario.title, product.impuesto_vario_total, product.moneda.representacion + str(product.total)]
+        elif product.traslado:
+            data = [product.id, '', '', product.traslado.title, product.responsable.username, product.categoria.title, product.fecha_compra, product.numero_compra, product.cuit, product.moneda.representacion, product.subtotal, product.concepto_no_grabado.title, product.concepto_no_grabado_total, product.iva.title, product.iva_total, product.impuesto_vario.title, product.impuesto_vario_total, product.moneda.representacion + str(product.total)]
+        else:
+            data = [product.id, '', '', '', product.responsable.username, product.categoria.title, product.fecha_compra, product.numero_compra, product.cuit, product.moneda.representacion, product.subtotal, product.concepto_no_grabado.title, product.concepto_no_grabado_total, product.iva.title, product.iva_total, product.impuesto_vario.title, product.impuesto_vario_total, product.moneda.representacion + str(product.total)]
+        for i, val in enumerate(data):
+            sheet.cell(row=row, column=col+i, value=val)
+        row+=1
+
+
+    wb.save(response)  
+
+    return response
+
 @login_required
 @user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
 
 def vuelo_detail(request, product_id):
+    product = get_object_or_404(Operacion, pk=product_id)
+
     if request.method == 'GET':
-        product = get_object_or_404(Operacion, pk=product_id, user=request.user)
+        if product.user != request.user and not request.user.is_staff:
+            messages.error(request, 'No tienes permiso para ver este elemento')
+            return redirect('vuelos')
+        
         form = ClientForm(instance=product)
         return render(request, 'vuelos/vuelo_detail.html', {'client': product, 'form': form})
-    else:
-        try:
-            product = get_object_or_404(Operacion, pk=product_id)
-            form = ClientForm(request.POST, instance=product)
-            form.save()
+
+    elif request.method == 'POST':
+        if product.user != request.user and not request.user.is_staff:
+            messages.error(request, 'No tienes permiso para editar este elemento')
             return redirect('vuelos')
-        except ValueError:
-            return render(request, 'vuelos/vuelo_detail.html', {'client': product, 'form': form, 'error': 'Error actualizando la operación'})
+        
+        form = ClientForm(request.POST, instance=product)
+        
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Elemento editado correctamente')
+        else:
+            messages.error(request, 'Error actualizando la operación')
+        
+        return redirect('vuelos')
+    
+    # Si llegamos a este punto, se trata de un método no permitido o una solicitud inválida
+    return redirect('vuelos')
+    
+@login_required
+@user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
 
 def send_mail_with_excel(request):
     module_dir = os.path.dirname(__file__)   #get current directory
@@ -276,7 +456,7 @@ def send_mail_with_excel(request):
     excel_file.seek(0)
 
     destinatarios = ['gdguerra07@gmail.com', 'gguerra@helicopterosdelpacifico.com.ar', 'augustorresfx@gmail.com']
-
+    destinatarios2 = ['augustorresfx@gmail.com']
     try:
         for destinatario in destinatarios:
 
@@ -284,7 +464,7 @@ def send_mail_with_excel(request):
             msg['From'] = 'no.reply.wings@gmail.com'
             msg['To'] = destinatario
 
-            msg['Subject'] = 'Su reporte del día'
+            msg['Subject'] = 'Su reporte de operaciones'
 
             part = MIMEBase('application', 'octet-stream')
             part.set_payload((excel_file).read())
@@ -323,6 +503,8 @@ def send_mail_with_excel(request):
     return redirect('vuelos')
 
 @login_required
+@user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
+
 def export_excel(request):
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename=Reporte_Diario ' + \
@@ -397,8 +579,10 @@ def delete_vuelo(request, product_id):
 
 #  AERONAVES
 
+
 @login_required
-@staff_required
+@user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
+
 def aeronaves(request):
 
     context = {}   
@@ -410,8 +594,10 @@ def aeronaves(request):
    
     return render(request, 'aeronaves/aeronaves.html', context=context)
 
+
 @login_required
-@staff_required
+@user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
+
 
 def create_aeronave(request):
     if request.method == 'GET':
@@ -434,34 +620,60 @@ def create_aeronave(request):
                 'error': 'Please provide valid data'
             })
 
+
 @login_required
-@staff_required
+@user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
+
 
 def aeronave_detail(request, aeronave_id):
+    aeronave = get_object_or_404(Aeronave, pk=aeronave_id)
+
     if request.method == 'GET':
-        aeronave = get_object_or_404(Aeronave, pk=aeronave_id)
+        if aeronave.user != request.user and not request.user.is_staff:
+            messages.error(request, 'No tienes permiso para ver este elemento')
+            return redirect('aeronaves')
+        
         form = AeronaveForm(instance=aeronave)
         horas_voladas_formatted = "{:.2f}".format(aeronave.horas_voladas).replace(',', '.')
         horas_disponibles_formatted = "{:.2f}".format(aeronave.horas_disponibles).replace(',', '.')
-        return render(request, 'aeronaves/aeronave_detail.html', {'aeronave': aeronave, 'form': form, 'horas_voladas_formatted': horas_voladas_formatted, 'horas_disponibles_formatted': horas_disponibles_formatted})
-    else:
-        try:
-            aeronave = get_object_or_404(Aeronave, pk=aeronave_id)
-            form = AeronaveForm(request.POST, instance=aeronave)
-            form.save()
+        horas_inspecciones_varias_25_formatted = "{:.2f}".format(aeronave.horas_inspecciones_varias_25).replace(',', '.')
+        horas_inspecciones_varias_50_formatted = "{:.2f}".format(aeronave.horas_inspecciones_varias_50).replace(',', '.')
+        horas_inspecciones_varias_100_formatted = "{:.2f}".format(aeronave.horas_inspecciones_varias_100).replace(',', '.')
+        return render(request, 'aeronaves/aeronave_detail.html', {'aeronave': aeronave, 'form': form, 'horas_voladas_formatted': horas_voladas_formatted, 'horas_disponibles_formatted': horas_disponibles_formatted, 'horas_inspecciones_varias_25_formatted': horas_inspecciones_varias_25_formatted, 'horas_inspecciones_varias_50_formatted': horas_inspecciones_varias_50_formatted, 'horas_inspecciones_varias_100_formatted': horas_inspecciones_varias_100_formatted})
+    elif request.method == 'POST':
+        if aeronave.user != request.user and not request.user.is_staff:
+            messages.error(request, 'No tienes permiso para editar este elemento')
             return redirect('aeronaves')
-        except ValueError:
-            return render(request, 'aeronaves/aeronave_detail.html', {'aeronave': aeronave, 'form': form, 'error': 'Error actualizando la aeronave'})
+        
+        form = AeronaveForm(request.POST, instance=aeronave)
+        
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Elemento editado correctamente')
+        else:
+            messages.error(request, 'Error actualizando la operación')
+        
+        return redirect('aeronaves')
+
 
 
 @login_required
-@staff_required
+@user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
+
 
 def delete_aeronave(request, aeronave_id):
-    aeronave = get_object_or_404(Aeronave, pk=aeronave_id)
-    if request.method == 'POST':
-        aeronave.delete()
+    aeronave = get_object_or_404(Operacion, pk=aeronave_id)
+    if aeronave.user == request.user or request.user.is_staff:
+        if request.method == 'POST':
+            aeronave.delete()
+            messages.success(request, 'Elemento eliminado correctamente')
+            return redirect('aeronaves')
+        else:
+            return render(request, 'aeronaves/delete_aeronave.html', {'aeronave': aeronave})
+    else:
+        messages.error(request, 'No tienes permiso para eliminar este elemento')
         return redirect('aeronaves')
+
 
 # FIN AERONAVES
 

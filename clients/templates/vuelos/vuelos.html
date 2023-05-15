@@ -18,40 +18,42 @@
           </div>
       {% endfor %}
    {% endif %}
-
-      <div class="d-flex justify-content-start align-items-center my-2">
-        <a href="/vuelos/create/" class="btn btn-outline-primary my-2 d-flex justify-content-center align-items-center mx-2">
-          <span class="material-icons-outlined ">
-            add 
-            </span>
-          <span>Crear operación</span>
-        </a>
-
+   <div class="container">
+    <div class="row">
+      <div class="col-sm-5 col-md-6"><a href="/vuelos/create/" class="btn btn-outline-primary my-2 d-flex justify-content-center align-items-center mx-2">
+        <span class="material-icons-outlined ">
+          add 
+          </span>
+        <span>Crear operación</span>
+      </a></div>
+      <div class="col-sm-5 offset-sm-2 col-md-6 offset-md-0">
         <a id="send_mail" href="{% url 'send_mail_with_excel' %}" class="btn btn-outline-primary my-2 d-flex justify-content-center align-items-center mx-2">
           <span class="material-icons-outlined ">
             mail  
             </span>
             <span>Enviar e-mail con excel</span>
-        </a>
-
+        </a></div>
+    </div>
+    <div class="row">
+      <div class="col-sm-5 col-md-6">
         <a href="{% url 'export_excel' %}" class="btn btn-outline-primary my-2 d-flex justify-content-center align-items-center mx-2">
           <span class="material-icons-outlined ">
             download 
             </span>
             <span>Descargar excel</span>
         </a>
-
+      </div>
+      <div class="col-sm-5 offset-sm-2 col-md-6 offset-md-0">
         <a href="#layouts" data-bs-toggle="collapse" class="btn btn-outline-primary my-2 d-flex justify-content-center align-items-center mx-2">
           <span class="material-icons-outlined ">
             filter_list 
             </span>
             <span>Expandir filtros</span>
           </a>
-  
-
-                
-         
       </div>
+    </div>
+  </div>
+   
       
  <div class="collapse" id="layouts">
          
@@ -90,6 +92,7 @@
                   <th scope="col">Aeronave</th>
                   <th scope="col">Matrícula</th>
                   <th scope="col">Creador</th>
+                  <th scope="col">Pasajeros</th>
                   <th scope="col">Fecha</th>
                   <th scope="col">Alumno/Instructor/Copiloto</th>
                   <th scope="col">Mecánico</th>
@@ -133,7 +136,8 @@
                     <td>{{ product.aeronave.title }}</td>
                     <td>{{ product.aeronave.matricula }}</td>
                     <td>{{ product.user.username }}</td>
-                    <td>{{ product.created }}</td>
+                    <td>{{ product.cant_pasajeros }}</td>
+                    <td>{{ product.fecha }}</td>
 
                     <td>{{ product.alumn }}</td>
                     <td>{{ product.mechanic }}</td>
@@ -194,10 +198,10 @@
 
             {% if pages.has_previous %}
               <li class="page-item">
-                <a class="page-link" href="{% my_url 1 'page' request.GET.urlencode %}">&laquo; first</a>
+                <a class="page-link" href="{% my_url 1 'page' request.GET.urlencode %}">&laquo; primer página</a>
               </li>
               <li class="page-item">
-                <a class="page-link" href="{% my_url pages.previous_page_number 'page' request.GET.urlencode %}">previous</a>
+                <a class="page-link" href="{% my_url pages.previous_page_number 'page' request.GET.urlencode %}">anterior</a>
               </li>
 
                 {% endif %}
@@ -220,10 +224,10 @@
        
             {% if pages.has_next %}
             <li class="page-item">
-                <a class="page-link" href="{% my_url pages.next_page_number 'page' request.GET.urlencode %}">next</a>
+                <a class="page-link" href="{% my_url pages.next_page_number 'page' request.GET.urlencode %}">siguiente</a>
              </li>
              <li class="page-item">
-            <a class="page-link" href="{% my_url pages.paginator.num_pages 'page' request.GET.urlencode %}">last &raquo;</a>
+            <a class="page-link" href="{% my_url pages.paginator.num_pages 'page' request.GET.urlencode %}">última página &raquo;</a>
           </li>
             {% endif %}
           </ul>

@@ -25,9 +25,27 @@ class OtroForm(ModelForm):
 class GastoForm(ModelForm):
     class Meta:
         model = Gasto
-        fields = ['title', 'subtotal', 'description', 'emision', 'cuit', 'rubro', 'categoria', 'impuesto']
+        fields = ['base', 'aeronave', 'traslado', 'responsable', 'categoria', 'fecha_compra', 'numero_compra', 'cuit', 'moneda', 'subtotal', 'concepto_no_grabado', 'concepto_no_grabado_total', 'iva', 'iva_total', 'impuesto_vario', 'impuesto_vario_total' ]
         widgets = {
-            'impuesto': forms.Select(attrs={
+            'iva': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'concepto_no_grabado': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'impuesto_vario': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'base': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'aeronave': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'traslado': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'responsable': forms.Select(attrs={
                 'class': 'form-select'
             }),
             'categoria': forms.Select(attrs={
@@ -38,7 +56,7 @@ class GastoForm(ModelForm):
 class ClientForm(ModelForm):
     class Meta:
         model = Operacion
-        fields = ['title', 'aeronave', 'pilot', 'alumn', 'mechanic', 'fuel', 'takeoff_place', 
+        fields = ['title', 'aeronave', 'pilot', 'alumn', 'mechanic', 'fecha', 'cant_pasajeros', 'fuel', 'takeoff_place', 
                   'landing_place', 'engine_ignition_1', 'takeoff_time', 'landing_time', 
                   'engine_cut_1', 'number_of_landings', 'number_of_splashdowns', 'start_up_cycles', 'fuel_on_landing',
                     'water_release_cycles', 'water_release_amount', 'cycles_with_external_load', 
@@ -75,7 +93,7 @@ class ClientForm(ModelForm):
 class AeronaveForm(ModelForm):
     class Meta:
         model = Aeronave
-        fields = ['title', 'matricula', 'horas_disponibles', 'horas_voladas', 'ciclos_motor', 'expiration']
+        fields = ['title', 'matricula', 'horas_disponibles', 'horas_voladas', 'ciclos_motor', 'expiration', 'vencimiento_anexo_2', 'vencimiento_inspeccion_anual', 'vencimiento_notaciones_requerimiento', 'horas_inspecciones_varias_25', 'horas_inspecciones_varias_50', 'horas_inspecciones_varias_100']
 
 class PilotoForm(ModelForm):
     class Meta:

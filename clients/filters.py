@@ -64,4 +64,4 @@ def __init__(self, *args, **kwargs):
 class GastosFilter(django_filters.FilterSet):
     class Meta:
         model = Gasto
-        fields = ['title', 'total', 'description']
+        fields = ['base', 'aeronave', 'traslado', 'total', 'responsable']
