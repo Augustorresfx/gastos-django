@@ -201,11 +201,23 @@ def expensa_detail(request, gasto_id):
     if request.method == 'GET':
         gasto = get_object_or_404(Gasto, pk=gasto_id)
         form = GastoForm(instance=gasto)
-        subtotal_formatted = "{:.2f}".format(gasto.subtotal).replace(',', '.')
-        iva_total_formatted = "{:.2f}".format(gasto.iva_total).replace(',', '.')
-        concepto_no_grabado_total_formatted = "{:.2f}".format(gasto.concepto_no_grabado_total).replace(',', '.')
-        impuesto_vario_total_formatted = "{:.2f}".format(gasto.impuesto_vario_total).replace(',', '.')
-        
+
+        if (gasto.subtotal):
+            subtotal_formatted = "{:.2f}".format(gasto.subtotal).replace(',', '.')
+        else:
+            subtotal_formatted = 0
+        if (gasto.iva_total):
+            iva_total_formatted = "{:.2f}".format(gasto.iva_total).replace(',', '.')
+        else:
+            iva_total_formatted = 0
+        if (gasto.concepto_no_grabado_total):
+            concepto_no_grabado_total_formatted = "{:.2f}".format(gasto.concepto_no_grabado_total).replace(',', '.')
+        else:
+            concepto_no_grabado_total_formatted = 0
+        if (gasto.impuesto_vario_total):
+            impuesto_vario_total_formatted = "{:.2f}".format(gasto.impuesto_vario_total).replace(',', '.')
+        else:
+            impuesto_vario_total_formatted = 0
         return render(request, 'expensas/expensa_detail.html', {'expensa': gasto, 'form': form, 'subtotal_formatted': subtotal_formatted, 'iva_total_formatted': iva_total_formatted, 'concepto_no_grabado_total_formatted': concepto_no_grabado_total_formatted, 'impuesto_vario_total_formatted': impuesto_vario_total_formatted})
     else:
         try:
@@ -258,7 +270,7 @@ def expensas_send_mail_with_excel(request):
     # Obtener fecha y hora actual en la zona horaria del proyecto
     hoy = timezone.now().date()  # Obtiene la fecha actual
     objetos_hoy = Gasto.objects.filter(created__date=hoy)
-    objetos_todos = Gasto.objects.all()
+    objetos_todos = Gasto.objects.all().order_by('-fecha_compra')
 
     row = 8  # empezar a agregar en la fila 8
     col = 1  # agregar en la primera columna
@@ -266,14 +278,100 @@ def expensas_send_mail_with_excel(request):
         timeformat = "%H:%M:%S"
        
         data = []
+        data.append(product.id)
+
+       
+
         if product.base:
-            data = [product.id, product.base.title,'', '', product.responsable.username, product.categoria.title, product.fecha_compra, product.numero_compra, product.cuit, product.moneda.representacion, product.subtotal, product.concepto_no_grabado.title, product.concepto_no_grabado_total, product.iva.title, product.iva_total, product.impuesto_vario.title, product.impuesto_vario_total, product.moneda.representacion + str(product.total)]
+            data.append(product.base.title)
+            data.append('')
+            data.append('')
+
         elif product.aeronave:
-            data = [product.id, '', product.aeronave.title, '', product.responsable.username, product.categoria.title, product.fecha_compra, product.numero_compra, product.cuit, product.moneda.representacion, product.subtotal, product.concepto_no_grabado.title, product.concepto_no_grabado_total, product.iva.title, product.iva_total, product.impuesto_vario.title, product.impuesto_vario_total, product.moneda.representacion + str(product.total)]
+            data.append('')
+            data.append(product.aeronave.title)
+            data.append('')
+
         elif product.traslado:
-            data = [product.id, '', '', product.traslado.title, product.responsable.username, product.categoria.title, product.fecha_compra, product.numero_compra, product.cuit, product.moneda.representacion, product.subtotal, product.concepto_no_grabado.title, product.concepto_no_grabado_total, product.iva.title, product.iva_total, product.impuesto_vario.title, product.impuesto_vario_total, product.moneda.representacion + str(product.total)]
+            data.append('')
+            data.append('')
+            data.append(product.traslado.title)
+
         else:
-            data = [product.id, '', '', '', product.responsable.username, product.categoria.title, product.fecha_compra, product.numero_compra, product.cuit, product.moneda.representacion, product.subtotal, product.concepto_no_grabado.title, product.concepto_no_grabado_total, product.iva.title, product.iva_total, product.impuesto_vario.title, product.impuesto_vario_total, product.moneda.representacion + str(product.total)]
+            data.append('')
+            data.append('')
+            data.append('')
+
+        if product.responsable:
+            data.append(product.responsable.username)
+        else:
+            data.append('')
+
+        if product.categoria:
+            data.append(product.categoria.title)
+        else:
+            data.append('')
+            
+
+        if product.fecha_compra:
+            data.append(product.fecha_compra)
+        else:
+            data.append('')
+        if product.numero_compra:
+            data.append(product.numero_compra)
+        else:
+            data.append('')
+        if product.cuit:
+            data.append(product.cuit)
+        else:
+            data.append('')
+
+
+        if product.moneda:
+            data.append(product.moneda.representacion)
+        else:
+            data.append('')
+
+        if product.subtotal:
+            data.append(product.subtotal)
+        else:
+            data.append('0')
+
+        if product.concepto_no_grabado:
+            data.append(product.concepto_no_grabado.title)
+        else:
+            data.append('')
+
+        if product.concepto_no_grabado_total:
+            data.append(product.concepto_no_grabado_total)
+        else:
+            data.append('0')
+
+        if product.iva:
+            data.append(product.iva.title)
+        else:
+            data.append('')
+
+        if product.iva_total:
+            data.append(product.iva_total)
+        else:
+            data.append('0')
+      
+        if product.impuesto_vario:
+            data.append(product.impuesto_vario.title)
+        else:
+            data.append('')
+
+        if product.impuesto_vario_total:
+            data.append(product.impuesto_vario_total)
+        else:
+            data.append('0')
+        
+
+        if product.total:
+            data.append(product.total)
+        else:
+            data.append('0')
         for i, val in enumerate(data):
             sheet.cell(row=row, column=col+i, value=val)
         row+=1
@@ -285,7 +383,7 @@ def expensas_send_mail_with_excel(request):
     destinatarios = ['gdguerra07@gmail.com', 'gguerra@helicopterosdelpacifico.com.ar', 'augustorresfx@gmail.com']
     destinatarios2 = ['augustorresfx@gmail.com']
     try:
-        for destinatario in destinatarios:
+        for destinatario in destinatarios2:
 
             msg = MIMEMultipart()
             msg['From'] = 'no.reply.wings@gmail.com'
@@ -327,7 +425,7 @@ def expensas_send_mail_with_excel(request):
         messages.error(request, 'Error enviando los correos electrónicos')
     
     
-    return redirect('vuelos')
+    return redirect('expensas')
 
 @login_required
 @user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
@@ -348,21 +446,107 @@ def expensas_export_excel(request):
     hoy = timezone.now().date()  # Obtiene la fecha actual
     objetos_hoy = Gasto.objects.filter(created__date=hoy)
 
-    objetos_todos = Gasto.objects.all()
+    objetos_todos = Gasto.objects.all().order_by('-fecha_compra')
     row = 8  # empezar a agregar en la fila 8
     col = 1  # agregar en la primera columna
     for product in objetos_todos:
         timeformat = "%H:%M:%S"
        
         data = []
+        data.append(product.id)
+
+       
+
         if product.base:
-            data = [product.id, product.base.title,'', '', product.responsable.username, product.categoria.title, product.fecha_compra, product.numero_compra, product.cuit, product.moneda.representacion, product.subtotal, product.concepto_no_grabado.title, product.concepto_no_grabado_total, product.iva.title, product.iva_total, product.impuesto_vario.title, product.impuesto_vario_total, product.moneda.representacion + str(product.total)]
+            data.append(product.base.title)
+            data.append('')
+            data.append('')
+
         elif product.aeronave:
-            data = [product.id, '', product.aeronave.title, '', product.responsable.username, product.categoria.title, product.fecha_compra, product.numero_compra, product.cuit, product.moneda.representacion, product.subtotal, product.concepto_no_grabado.title, product.concepto_no_grabado_total, product.iva.title, product.iva_total, product.impuesto_vario.title, product.impuesto_vario_total, product.moneda.representacion + str(product.total)]
+            data.append('')
+            data.append(product.aeronave.title)
+            data.append('')
+
         elif product.traslado:
-            data = [product.id, '', '', product.traslado.title, product.responsable.username, product.categoria.title, product.fecha_compra, product.numero_compra, product.cuit, product.moneda.representacion, product.subtotal, product.concepto_no_grabado.title, product.concepto_no_grabado_total, product.iva.title, product.iva_total, product.impuesto_vario.title, product.impuesto_vario_total, product.moneda.representacion + str(product.total)]
+            data.append('')
+            data.append('')
+            data.append(product.traslado.title)
+
         else:
-            data = [product.id, '', '', '', product.responsable.username, product.categoria.title, product.fecha_compra, product.numero_compra, product.cuit, product.moneda.representacion, product.subtotal, product.concepto_no_grabado.title, product.concepto_no_grabado_total, product.iva.title, product.iva_total, product.impuesto_vario.title, product.impuesto_vario_total, product.moneda.representacion + str(product.total)]
+            data.append('')
+            data.append('')
+            data.append('')
+
+        if product.responsable:
+            data.append(product.responsable.username)
+        else:
+            data.append('')
+
+        if product.categoria:
+            data.append(product.categoria.title)
+        else:
+            data.append('')
+            
+
+        if product.fecha_compra:
+            data.append(product.fecha_compra)
+        else:
+            data.append('')
+        if product.numero_compra:
+            data.append(product.numero_compra)
+        else:
+            data.append('')
+        if product.cuit:
+            data.append(product.cuit)
+        else:
+            data.append('')
+
+
+        if product.moneda:
+            data.append(product.moneda.representacion)
+        else:
+            data.append('')
+
+        if product.subtotal:
+            data.append(product.subtotal)
+        else:
+            data.append('0')
+
+        if product.concepto_no_grabado:
+            data.append(product.concepto_no_grabado.title)
+        else:
+            data.append('')
+
+        if product.concepto_no_grabado_total:
+            data.append(product.concepto_no_grabado_total)
+        else:
+            data.append('0')
+
+        if product.iva:
+            data.append(product.iva.title)
+        else:
+            data.append('')
+
+        if product.iva_total:
+            data.append(product.iva_total)
+        else:
+            data.append('0')
+      
+        if product.impuesto_vario:
+            data.append(product.impuesto_vario.title)
+        else:
+            data.append('')
+
+        if product.impuesto_vario_total:
+            data.append(product.impuesto_vario_total)
+        else:
+            data.append('0')
+        
+
+        if product.total:
+            data.append(product.total)
+        else:
+            data.append('0')
         for i, val in enumerate(data):
             sheet.cell(row=row, column=col+i, value=val)
         row+=1
@@ -422,11 +606,12 @@ def send_mail_with_excel(request):
     # Obtener fecha y hora actual en la zona horaria del proyecto
     hoy = timezone.now().date()  # Obtiene la fecha actual
     objetos_hoy = Operacion.objects.filter(created__date=hoy)
-    objetos_todos = Operacion.objects.all()
+    objetos_todos = Operacion.objects.all().order_by('-fecha')
     copilotos = Otro.objects.filter(rol__title='copiloto')
     row = 8  # empezar a agregar en la fila 8
     col = 1  # agregar en la primera columna
     for product in objetos_todos:
+        print(product.fecha)
         timeformat = "%H:%M:%S"
         alumnos = Operacion.objects.filter(Q(alumn__rol__title='alumno'))
     
@@ -435,18 +620,18 @@ def send_mail_with_excel(request):
         combustible_usado = product.fuel - product.fuel_on_landing
         data = []
         if product.alumn == None:
-            data = [product.created.strftime("%Y"), product.created.strftime("%m"), product.created.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.total_horas_piloto), '', product.number_of_landings, product.number_of_splashdowns, '', timedelta(seconds=delta.seconds), product.reason_of_flight.title, product.total_horas_aeronave, product.total_ciclos_encendido, product.total_horas_disponibles_aeronave, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
+            data = [product.fecha.strftime("%Y"), product.fecha.strftime("%m"), product.created.strftime("%d"), product.fecha.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.total_horas_piloto), '', product.number_of_landings, product.number_of_splashdowns, '', timedelta(seconds=delta.seconds), product.reason_of_flight.title, product.total_horas_aeronave, product.total_ciclos_encendido, product.total_horas_disponibles_aeronave, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
         else:
             if product.alumn.rol.title == 'Copiloto':
 
             #data = [product.title.title, product.takeoff_place, product.landing_place, product.created.strftime("%y %m %d"), product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.matricula, timedelta(seconds=delta.seconds), product.reason_of_flight.title, '', '', product.aeronave.horas_voladas, product.start_up_cycles, product.aeronave.horas_disponibles, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.engine_ignition_2, product.engine_cut_2, product.total_encendido_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.number_of_landings, product.number_of_splashdowns, product.water_release_cycles, product.water_release_amount]
-                data = [product.created.strftime("%Y"), product.created.strftime("%m"), product.created.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.total_horas_piloto), product.alumn.name + ": " + str(product.total_horas_alumn), product.number_of_landings, product.number_of_splashdowns, '', timedelta(seconds=delta.seconds), product.reason_of_flight.title, product.total_horas_aeronave, product.total_ciclos_encendido, product.total_horas_disponibles_aeronave, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
+                data = [product.fecha.strftime("%Y"), product.fecha.strftime("%m"), product.created.strftime("%d"), product.fecha.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.total_horas_piloto), product.alumn.name + ": " + str(product.total_horas_alumn), product.number_of_landings, product.number_of_splashdowns, '', timedelta(seconds=delta.seconds), product.reason_of_flight.title, product.total_horas_aeronave, product.total_ciclos_encendido, product.total_horas_disponibles_aeronave, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
 
             elif product.alumn.rol.title == 'Instructor':
-                data = [product.created.strftime("%Y"), product.created.strftime("%m"), product.created.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.total_horas_piloto), '', product.number_of_landings, product.number_of_splashdowns, product.alumn.name + ": " + str(product.total_horas_alumn), timedelta(seconds=delta.seconds), product.reason_of_flight.title, product.total_horas_aeronave, product.total_ciclos_encendido, product.total_horas_disponibles_aeronave, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
+                data = [product.fecha.strftime("%Y"), product.fecha.strftime("%m"), product.created.strftime("%d"), product.fecha.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.total_horas_piloto), '', product.number_of_landings, product.number_of_splashdowns, product.alumn.name + ": " + str(product.total_horas_alumn), timedelta(seconds=delta.seconds), product.reason_of_flight.title, product.total_horas_aeronave, product.total_ciclos_encendido, product.total_horas_disponibles_aeronave, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
             
             else:
-                data = [product.created.strftime("%Y"), product.created.strftime("%m"), product.created.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.total_horas_piloto), '', product.number_of_landings, product.number_of_splashdowns, '', timedelta(seconds=delta.seconds), product.reason_of_flight.title, product.aeronave.horas_voladas, product.aeronave.ciclos_motor, product.aeronave.horas_disponibles, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
+                data = [product.fecha.strftime("%Y"), product.fecha.strftime("%m"), product.created.strftime("%d"), product.fecha.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.total_horas_piloto), '', product.number_of_landings, product.number_of_splashdowns, '', timedelta(seconds=delta.seconds), product.reason_of_flight.title, product.aeronave.horas_voladas, product.aeronave.ciclos_motor, product.aeronave.horas_disponibles, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
         for i, val in enumerate(data):
             sheet.cell(row=row, column=col+i, value=val)
         row+=1
@@ -458,7 +643,7 @@ def send_mail_with_excel(request):
     destinatarios = ['gdguerra07@gmail.com', 'gguerra@helicopterosdelpacifico.com.ar', 'augustorresfx@gmail.com']
     destinatarios2 = ['augustorresfx@gmail.com']
     try:
-        for destinatario in destinatarios:
+        for destinatario in destinatarios2:
 
             msg = MIMEMultipart()
             msg['From'] = 'no.reply.wings@gmail.com'
@@ -521,7 +706,7 @@ def export_excel(request):
     hoy = timezone.now().date()  # Obtiene la fecha actual
     objetos_hoy = Operacion.objects.filter(created__date=hoy)
 
-    objetos_todos = Operacion.objects.all()
+    objetos_todos = Operacion.objects.all().order_by('-fecha')
     copilotos = Otro.objects.filter(rol__title='copiloto')
     row = 8  # empezar a agregar en la fila 8
     col = 1  # agregar en la primera columna
@@ -534,18 +719,18 @@ def export_excel(request):
         combustible_usado = product.fuel - product.fuel_on_landing
         data = []
         if product.alumn == None:
-            data = [product.created.strftime("%Y"), product.created.strftime("%m"), product.created.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.total_horas_piloto), '', product.number_of_landings, product.number_of_splashdowns, '', timedelta(seconds=delta.seconds), product.reason_of_flight.title, product.total_horas_aeronave, product.total_ciclos_encendido, product.total_horas_disponibles_aeronave, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
+            data = [product.fecha.strftime("%Y"), product.fecha.strftime("%m"), product.created.strftime("%d"), product.fecha.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.total_horas_piloto), '', product.number_of_landings, product.number_of_splashdowns, '', timedelta(seconds=delta.seconds), product.reason_of_flight.title, product.total_horas_aeronave, product.total_ciclos_encendido, product.total_horas_disponibles_aeronave, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
         else:
             if product.alumn.rol.title == 'Copiloto':
 
             #data = [product.title.title, product.takeoff_place, product.landing_place, product.created.strftime("%y %m %d"), product.pilot.name, product.mechanic.name, product.operator.name, product.aeronave.matricula, timedelta(seconds=delta.seconds), product.reason_of_flight.title, '', '', product.aeronave.horas_voladas, product.start_up_cycles, product.aeronave.horas_disponibles, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.engine_ignition_2, product.engine_cut_2, product.total_encendido_2, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.number_of_landings, product.number_of_splashdowns, product.water_release_cycles, product.water_release_amount]
-                data = [product.created.strftime("%Y"), product.created.strftime("%m"), product.created.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.total_horas_piloto), product.alumn.name + ": " + str(product.total_horas_alumn), product.number_of_landings, product.number_of_splashdowns, '', timedelta(seconds=delta.seconds), product.reason_of_flight.title, product.total_horas_aeronave, product.total_ciclos_encendido, product.total_horas_disponibles_aeronave, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
+                data = [product.fecha.strftime("%Y"), product.fecha.strftime("%m"), product.created.strftime("%d"), product.fecha.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.total_horas_piloto), product.alumn.name + ": " + str(product.total_horas_alumn), product.number_of_landings, product.number_of_splashdowns, '', timedelta(seconds=delta.seconds), product.reason_of_flight.title, product.total_horas_aeronave, product.total_ciclos_encendido, product.total_horas_disponibles_aeronave, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
 
             elif product.alumn.rol.title == 'Instructor':
-                data = [product.created.strftime("%Y"), product.created.strftime("%m"), product.created.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.total_horas_piloto), '', product.number_of_landings, product.number_of_splashdowns, product.alumn.name + ": " + str(product.total_horas_alumn), timedelta(seconds=delta.seconds), product.reason_of_flight.title, product.total_horas_aeronave, product.total_ciclos_encendido, product.total_horas_disponibles_aeronave, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
+                data = [product.fecha.strftime("%Y"), product.fecha.strftime("%m"), product.created.strftime("%d"), product.fecha.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.total_horas_piloto), '', product.number_of_landings, product.number_of_splashdowns, product.alumn.name + ": " + str(product.total_horas_alumn), timedelta(seconds=delta.seconds), product.reason_of_flight.title, product.total_horas_aeronave, product.total_ciclos_encendido, product.total_horas_disponibles_aeronave, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
             
             else:
-                data = [product.created.strftime("%Y"), product.created.strftime("%m"), product.created.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.total_horas_piloto), '', product.number_of_landings, product.number_of_splashdowns, '', timedelta(seconds=delta.seconds), product.reason_of_flight.title, product.aeronave.horas_voladas, product.aeronave.ciclos_motor, product.aeronave.horas_disponibles, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
+                data = [product.fecha.strftime("%Y"), product.fecha.strftime("%m"), product.created.strftime("%d"), product.fecha.strftime("%d"), product.takeoff_time, product.takeoff_place, product.landing_place, product.landing_time, product.reason_of_flight.title, product.aeronave.title, product.aeronave.matricula, product.pilot.name + ': ' + str(product.total_horas_piloto), '', product.number_of_landings, product.number_of_splashdowns, '', timedelta(seconds=delta.seconds), product.reason_of_flight.title, product.aeronave.horas_voladas, product.aeronave.ciclos_motor, product.aeronave.horas_disponibles, '', product.fuel, product.fuel_on_landing, product.used_fuel, product.engine_ignition_1, product.engine_cut_1, product.total_encendido_1, product.operation_note, product.maintenance_note, product.client.name, product.cycles_with_external_load, product.weight_with_external_load, product.water_release_cycles, product.water_release_amount ]
         for i, val in enumerate(data):
             sheet.cell(row=row, column=col+i, value=val)
         row+=1
