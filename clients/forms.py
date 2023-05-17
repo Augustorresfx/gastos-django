@@ -93,7 +93,7 @@ class ClientForm(ModelForm):
 class AeronaveForm(ModelForm):
     class Meta:
         model = Aeronave
-        fields = ['title', 'matricula', 'horas_disponibles', 'horas_voladas', 'ciclos_motor', 'expiration', 'vencimiento_anexo_2', 'vencimiento_inspeccion_anual', 'vencimiento_notaciones_requerimiento', 'horas_inspecciones_varias_25', 'horas_inspecciones_varias_50', 'horas_inspecciones_varias_100']
+        fields = ['title', 'matricula', 'aterrizajes', 'horas_disponibles', 'horas_voladas', 'ciclos_motor', 'expiration', 'vencimiento_anexo_2', 'vencimiento_inspeccion_anual', 'vencimiento_notaciones_requerimiento', 'horas_inspecciones_varias_25', 'horas_inspecciones_varias_50', 'horas_inspecciones_varias_100']
 
 class PilotoForm(ModelForm):
     class Meta:

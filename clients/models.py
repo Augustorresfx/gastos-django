@@ -5,24 +5,24 @@ from django.dispatch import receiver
 from datetime import datetime, timedelta
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-
+from decimal import Decimal
 # Create your models here.
 
 class Aeronave(models.Model):
     title = models.CharField(max_length=100)
-    
+    aterrizajes = models.IntegerField(null=True, blank=True, default=0)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     expiration = models.DateField(blank=True, null=True)
     matricula = models.CharField(max_length=100, blank=True, null=True)
-    horas_disponibles = models.FloatField(blank=True, null=True, default=0.0)
-    horas_voladas = models.FloatField(blank=True, null=True, default=0.0)
+    horas_disponibles = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, default=0.0)
+    horas_voladas = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, default=0.0)
     ciclos_motor = models.IntegerField(blank=True, null=True, default=0)
     vencimiento_anexo_2 = models.DateField(blank=True, null=True)
     vencimiento_inspeccion_anual = models.DateField(blank=True, null=True)
     vencimiento_notaciones_requerimiento = models.DateField(blank=True, null=True)
-    horas_inspecciones_varias_25 = models.FloatField(blank=True, null=True, default=25.0)
-    horas_inspecciones_varias_50 = models.FloatField(blank=True, null=True, default=50.0)
-    horas_inspecciones_varias_100 = models.FloatField(blank=True, null=True, default=100.0)
+    horas_inspecciones_varias_25 = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, default=25.0)
+    horas_inspecciones_varias_50 = models.DecimalField(blank=True, null=True,  max_digits=10, decimal_places=2, default=50.0)
+    horas_inspecciones_varias_100 = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, default=100.0)
     
 
     class Meta:
@@ -55,7 +55,7 @@ class Rol(models.Model):
 class Otro(models.Model):
     name = models.CharField(max_length=100)
     expiration = models.DateField(blank=True, null=True)
-    horas_voladas = models.FloatField(blank=True, null=True, default=0.0)
+    horas_voladas = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, default=0.0)
     rol = models.ForeignKey(Rol, on_delete=models.CASCADE, null=True)
 
     class Meta:
@@ -67,7 +67,7 @@ class Otro(models.Model):
 class Piloto(models.Model):
     name = models.CharField(max_length=100)
     expiration = models.DateField()
-    horas_voladas = models.FloatField(blank=True, null=True, default=0.0)
+    horas_voladas = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, default=0.0)
     
     class Meta:
         ordering = ('name',)
@@ -259,19 +259,19 @@ class Operacion(models.Model):
     landing_time = models.TimeField()
     engine_cut_1 = models.TimeField()
 
-    cant_pasajeros = models.IntegerField(blank=True, null=True)
+    cant_pasajeros = models.IntegerField(default=0,blank=True, null=True)
     
-
+    total_aterrizajes = models.IntegerField(blank=True, null=True, default=0)
     total_encendido_1 = models.DurationField(blank=True, null=True)
-    total_horas_aeronave = models.FloatField(blank=True, null=True, default=0.0)
-    total_horas_disponibles_aeronave = models.FloatField(blank=True, null=True, default=0.0)
-    total_horas_piloto = models.FloatField(blank=True, null=True, default=0.0)
-    total_horas_alumn = models.FloatField(blank=True, null=True, default=0.0)
+    total_horas_aeronave = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, default=0.0)
+    total_horas_disponibles_aeronave = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, default=0.0)
+    total_horas_piloto = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, default=0.0)
+    total_horas_alumn = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, default=0.0)
     total_ciclos_encendido = models.IntegerField(blank=True, null=True, default=0)
-    number_of_landings = models.IntegerField()
+    number_of_landings = models.IntegerField(blank=True, null=True)
     number_of_splashdowns = models.IntegerField(blank=True, null=True)
     start_up_cycles = models.IntegerField(blank=True, null=True)
-    fuel_on_landing = models.IntegerField()
+    fuel_on_landing = models.IntegerField(blank=True, null=True)
     water_release_cycles = models.IntegerField(blank=True)
     water_release_amount = models.IntegerField(blank=True)
     cycles_with_external_load = models.IntegerField(blank=True)
@@ -319,22 +319,23 @@ class Operacion(models.Model):
             # Calcular la diferencia de tiempo en segundos y convertir a horas enteras
             segundos_de_vuelo = (dt_aterrizaje - dt_despegue).total_seconds()
             horas_de_vuelo = float(segundos_de_vuelo / 3600)
-
+            aterrizajes = self.aeronave.aterrizajes + self.number_of_landings
             # Restar las horas de vuelo a las horas disponibles de la aeronave
-            
-            self.aeronave.horas_disponibles -= round(horas_de_vuelo, 2)
-            self.aeronave.horas_voladas += round(horas_de_vuelo, 2)
-            self.aeronave.horas_inspecciones_varias_25 -= round(horas_de_vuelo, 2)
-            self.aeronave.horas_inspecciones_varias_50 -= round(horas_de_vuelo, 2)
-            self.aeronave.horas_inspecciones_varias_100 -= round(horas_de_vuelo, 2)
-            self.pilot.horas_voladas += round(horas_de_vuelo, 2)
+            self.aeronave.aterrizajes = self.aeronave.aterrizajes + self.number_of_landings
+            self.total_aterrizajes = aterrizajes
+            self.aeronave.horas_disponibles = self.aeronave.horas_disponibles - Decimal(round(horas_de_vuelo, 2))
+            self.aeronave.horas_voladas = self.aeronave.horas_voladas + Decimal(round(horas_de_vuelo, 2))
+            self.aeronave.horas_inspecciones_varias_25 = self.aeronave.horas_inspecciones_varias_25 - Decimal(round(horas_de_vuelo, 2))
+            self.aeronave.horas_inspecciones_varias_50 = self.aeronave.horas_inspecciones_varias_50 - Decimal(round(horas_de_vuelo, 2))
+            self.aeronave.horas_inspecciones_varias_100 = self.aeronave.horas_inspecciones_varias_100 - Decimal(round(horas_de_vuelo, 2))
+            self.pilot.horas_voladas = self.pilot.horas_voladas + Decimal(round(horas_de_vuelo, 2))
             if self.alumn:
-                self.alumn.horas_voladas += round(horas_de_vuelo, 2)
+                self.alumn.horas_voladas = self.alumn.horas_voladas + Decimal(round(horas_de_vuelo, 2))
                 self.alumn.save()
                 self.total_horas_alumn = self.alumn.horas_voladas
 
             # Sumar ciclos motor
-            self.aeronave.ciclos_motor += self.start_up_cycles
+            self.aeronave.ciclos_motor = self.aeronave.ciclos_motor + self.start_up_cycles
             self.aeronave.save()
             self.pilot.save()
             self.total_ciclos_encendido = self.aeronave.ciclos_motor

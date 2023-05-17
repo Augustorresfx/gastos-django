@@ -27,6 +27,12 @@
                     </div>
 
                     <div class="mb-3">
+                        <label for="description">Aterrizajes:</label>
+                        <input type="number" name="aterrizajes" id="aterrizajes"
+                        class="form-control" placeholder="Escribe la cantidad de aterrizajes" value="{{aeronave.aterrizajes}}">
+                    </div>
+
+                    <div class="mb-3">
                         
                         <label for="description">Horas de vuelo disponibles:</label>
                         <input type="number" step="any" name="horas_disponibles" id="horas_disponibles" value="{{ horas_disponibles_formatted }}"
@@ -35,7 +41,7 @@
                     
                     <div class="mb-3">
                        
-                        <label for="description">Horas de vuelo usadas:</label>
+                        <label for="description">Total general:</label>
                         <input type="number" step="any" name="horas_voladas" id="horas_voladas" value="{{horas_voladas_formatted}}"
                         class="form-control" placeholder="Escribe el número de horas usadas">
                     </div>
