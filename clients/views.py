@@ -95,7 +95,7 @@ def vuelos(request):
     
     filtered_clients = ProductFilter(
         request.GET, 
-        queryset=Operacion.objects.all().order_by('-fecha'),
+        queryset=Operacion.objects.all().order_by('-created'),
 
         )
 
@@ -198,9 +198,13 @@ def create_vuelo(request):
 @user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
 
 def expensa_detail(request, gasto_id):
+    gasto = get_object_or_404(Gasto, pk=gasto_id)
+    form = GastoForm(instance=gasto)
     if request.method == 'GET':
-        gasto = get_object_or_404(Gasto, pk=gasto_id)
-        form = GastoForm(instance=gasto)
+        if gasto.user != request.user and not request.user.is_staff:
+            messages.error(request, 'No tienes permiso para ver este elemento')
+            return redirect('expensas')
+        
 
         if (gasto.subtotal):
             subtotal_formatted = "{:.2f}".format(gasto.subtotal).replace(',', '.')
@@ -219,14 +223,25 @@ def expensa_detail(request, gasto_id):
         else:
             impuesto_vario_total_formatted = 0
         return render(request, 'expensas/expensa_detail.html', {'expensa': gasto, 'form': form, 'subtotal_formatted': subtotal_formatted, 'iva_total_formatted': iva_total_formatted, 'concepto_no_grabado_total_formatted': concepto_no_grabado_total_formatted, 'impuesto_vario_total_formatted': impuesto_vario_total_formatted})
-    else:
-        try:
-            gasto = get_object_or_404(Gasto, pk=gasto_id)
-            form = GastoForm(request.POST, instance=gasto)
-            form.save()
+
+    elif request.method == 'POST':
+        if gasto.user != request.user and not request.user.is_staff:
+            messages.error(request, 'No tienes permiso para editar este elemento')
             return redirect('expensas')
-        except ValueError:
-            return render(request, 'expensas/expensa_detail.html', {'expensa': gasto, 'form': form, 'error': 'Error actualizando el gasto'})
+        
+        form = GastoForm(request.POST, instance=gasto)
+        
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Elemento editado correctamente')
+        else:
+            messages.error(request, 'Error actualizando la operación')
+        
+        return redirect('expensas')
+    
+    # Si llegamos a este punto, se trata de un método no permitido o una solicitud inválida
+    return redirect('expensas')
+    
 
 
 @login_required
