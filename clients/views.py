@@ -49,31 +49,31 @@ load_dotenv()
 def home(request):
     return render(request, 'home.html')
 
-def signup(request):
+# def signup(request):
 
-    if request.method == 'GET':
-        return render(request, 'signup.html', {
-            'form': UserCreationForm
-        })
-    else:
-        if request.POST['password1'] == request.POST['password2']:
-            try:
+#     if request.method == 'GET':
+#         return render(request, 'signup.html', {
+#             'form': UserCreationForm
+#         })
+#     else:
+#         if request.POST['password1'] == request.POST['password2']:
+#             try:
               
-                user = User.objects.create_user(username=request.POST['username'], 
-                password=request.POST['password1'])
-                user.save()
-                login(request, user)
-                return redirect('vuelos')
-            except IntegrityError:
-                return render(request, 'signup.html', {
-                    'form': UserCreationForm,
-                    'error': 'Usuario ya existe'
-                })
-        else:
-            return render(request, 'signup.html', {
-                'form': UserCreationForm,
-                'error': 'Las constraseñas no coinciden'
-            })
+#                 user = User.objects.create_user(username=request.POST['username'], 
+#                 password=request.POST['password1'])
+#                 user.save()
+#                 login(request, user)
+#                 return redirect('vuelos')
+#             except IntegrityError:
+#                 return render(request, 'signup.html', {
+#                     'form': UserCreationForm,
+#                     'error': 'Usuario ya existe'
+#                 })
+#         else:
+#             return render(request, 'signup.html', {
+#                 'form': UserCreationForm,
+#                 'error': 'Las constraseñas no coinciden'
+#             })
 
 def search_expenses(request):
     if request.method == 'POST':
@@ -205,7 +205,6 @@ def expensa_detail(request, gasto_id):
             messages.error(request, 'No tienes permiso para ver este elemento')
             return redirect('expensas')
         
-
         if (gasto.subtotal):
             subtotal_formatted = "{:.2f}".format(gasto.subtotal).replace(',', '.')
         else:
@@ -398,7 +397,7 @@ def expensas_send_mail_with_excel(request):
     destinatarios = ['gdguerra07@gmail.com', 'gguerra@helicopterosdelpacifico.com.ar', 'augustorresfx@gmail.com']
     destinatarios2 = ['augustorresfx@gmail.com']
     try:
-        for destinatario in destinatarios2:
+        for destinatario in destinatarios:
 
             msg = MIMEMultipart()
             msg['From'] = 'no.reply.wings@gmail.com'
@@ -657,7 +656,7 @@ def send_mail_with_excel(request):
     destinatarios = ['gdguerra07@gmail.com', 'gguerra@helicopterosdelpacifico.com.ar', 'augustorresfx@gmail.com']
     destinatarios2 = ['augustorresfx@gmail.com']
     try:
-        for destinatario in destinatarios2:
+        for destinatario in destinatarios:
 
             msg = MIMEMultipart()
             msg['From'] = 'no.reply.wings@gmail.com'

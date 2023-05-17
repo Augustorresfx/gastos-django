@@ -21,7 +21,6 @@ from django.views.decorators.csrf import csrf_exempt
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
-    path('signup/', views.signup, name='signup'),
     path('pilotos/', views.pilotos, name='pilotos'),
     path('pilotos/create/', views.create_piloto, name='crear_piloto'),
     path('pilotos/<int:piloto_id>/', views.piloto_detail, name='piloto_detail'),
