@@ -10,13 +10,13 @@ from decimal import Decimal
 
 class Aeronave(models.Model):
     title = models.CharField(max_length=100)
-    aterrizajes = models.IntegerField(null=True, blank=True, default=0)
+    aterrizajes = models.DecimalField(null=True, blank=True, max_digits=100, decimal_places=2, default=0)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     expiration = models.DateField(blank=True, null=True)
     matricula = models.CharField(max_length=100, blank=True, null=True)
     horas_disponibles = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, default=0.0)
     horas_voladas = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, default=0.0)
-    ciclos_motor = models.IntegerField(blank=True, null=True, default=0)
+    ciclos_motor = models.DecimalField(blank=True, null=True, max_digits=100, decimal_places=2, default=0)
     vencimiento_anexo_2 = models.DateField(blank=True, null=True)
     vencimiento_inspeccion_anual = models.DateField(blank=True, null=True)
     vencimiento_notaciones_requerimiento = models.DateField(blank=True, null=True)
@@ -194,18 +194,18 @@ class Gasto(models.Model):
     responsable = models.ForeignKey(User, related_name='responsable_gasto', on_delete=models.CASCADE, null=True, blank=True)
     base = models.ForeignKey(Base, on_delete=models.CASCADE, null=True, blank=True)
     aeronave = models.ForeignKey(Aeronave, on_delete=models.CASCADE, null=True, blank=True) 
-    subtotal = models.FloatField(null=True, blank=True)
+    subtotal = models.DecimalField(decimal_places=2, max_digits=100, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     fecha_compra = models.DateField(null=True, blank=True)
     numero_compra = models.IntegerField(null=True, blank=True)
     moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, blank=True)
     cuit = models.CharField(max_length=100, blank=True, null=True)
     concepto_no_grabado = models.ForeignKey(ConceptoNoGrabado, on_delete=models.CASCADE, blank=True, null=True)
-    concepto_no_grabado_total = models.FloatField(null=True, blank=True)
+    concepto_no_grabado_total = models.DecimalField(decimal_places=2, max_digits=100, null=True, blank=True)
     iva = models.ForeignKey(Iva, on_delete=models.CASCADE, blank=True, null=True)
-    iva_total = models.FloatField(null=True, blank=True)
+    iva_total = models.DecimalField(decimal_places=2, max_digits=100, null=True, blank=True)
     impuesto_vario = models.ForeignKey(ImpuestoVario, on_delete=models.CASCADE, null=True, blank=True)
-    impuesto_vario_total = models.FloatField(null=True, blank=True)
+    impuesto_vario_total = models.DecimalField(decimal_places=2, max_digits=100, null=True, blank=True)
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, null=True, blank=True)
     total = models.DecimalField(decimal_places=2, max_digits=100, null=True, blank=True)
     
@@ -219,15 +219,15 @@ class Gasto(models.Model):
  
     def calcular_total(self):
        
-        subtotal = self.subtotal
+        subtotal = self.subtotal or Decimal('0.0')
 
-        iva = self.iva_total
+        iva = self.iva_total or Decimal('0.0')
 
-        impuestos_varios = self.impuesto_vario_total
+        impuestos_varios = self.impuesto_vario_total or Decimal('0.0')
 
-        concepto_no_grabado = self.concepto_no_grabado_total
+        concepto_no_grabado = self.concepto_no_grabado_total or Decimal('0.0')
 
-        suma = subtotal + iva + impuestos_varios + concepto_no_grabado
+        suma = subtotal + iva + impuestos_varios + concepto_no_grabado or Decimal('0.0')
 
         total = suma
 
@@ -235,7 +235,7 @@ class Gasto(models.Model):
 
     def save(self,*args,**kwargs):
         
-        self.total = float(self.calcular_total())
+        self.total = Decimal(self.calcular_total())
         super().save(*args, **kwargs)
 
 
@@ -249,8 +249,8 @@ class Operacion(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     alumn = models.ForeignKey(Otro, on_delete=models.CASCADE, null=True, blank=True)
     mechanic = models.ForeignKey(Mecanico, related_name='operaciones', on_delete=models.CASCADE, null=True, blank=True)
-    fuel = models.IntegerField()
-    used_fuel = models.IntegerField(blank=True, null=True)
+    fuel = models.DecimalField(blank=True, null=True, max_digits=100, decimal_places=2)
+    used_fuel = models.DecimalField(blank=True, null=True, max_digits=100, decimal_places=2)
     takeoff_place = models.CharField(max_length=100)
     landing_place = models.CharField(max_length=100)
     engine_ignition_1 = models.TimeField()
@@ -259,23 +259,23 @@ class Operacion(models.Model):
     landing_time = models.TimeField()
     engine_cut_1 = models.TimeField()
 
-    cant_pasajeros = models.IntegerField(default=0,blank=True, null=True)
+    cant_pasajeros = models.DecimalField(default=0,blank=True, max_digits=100, decimal_places=2, null=True)
     
-    total_aterrizajes = models.IntegerField(blank=True, null=True, default=0)
+    total_aterrizajes = models.DecimalField(blank=True, null=True, max_digits=100, decimal_places=2, default=0)
     total_encendido_1 = models.DurationField(blank=True, null=True)
     total_horas_aeronave = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, default=0.0)
     total_horas_disponibles_aeronave = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, default=0.0)
     total_horas_piloto = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, default=0.0)
     total_horas_alumn = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, default=0.0)
-    total_ciclos_encendido = models.IntegerField(blank=True, null=True, default=0)
-    number_of_landings = models.IntegerField(blank=True, null=True)
-    number_of_splashdowns = models.IntegerField(blank=True, null=True)
-    start_up_cycles = models.IntegerField(blank=True, null=True)
-    fuel_on_landing = models.IntegerField(blank=True, null=True)
-    water_release_cycles = models.IntegerField(blank=True)
-    water_release_amount = models.IntegerField(blank=True)
-    cycles_with_external_load = models.IntegerField(blank=True)
-    weight_with_external_load = models.IntegerField(blank=True)
+    total_ciclos_encendido = models.DecimalField(blank=True, null=True, max_digits=100, decimal_places=2, default=0)
+    number_of_landings = models.DecimalField(blank=True, null=True, max_digits=100, decimal_places=2)
+    number_of_splashdowns = models.DecimalField(blank=True, null=True, max_digits=100, decimal_places=2)
+    start_up_cycles = models.DecimalField(blank=True, null=True, max_digits=100, decimal_places=2)
+    fuel_on_landing = models.DecimalField(blank=True, null=True, max_digits=100, decimal_places=2)
+    water_release_cycles = models.DecimalField(blank=True, null=True, max_digits=100, decimal_places=2)
+    water_release_amount = models.DecimalField(blank=True, null=True, max_digits=100, decimal_places=2)
+    cycles_with_external_load = models.DecimalField(blank=True, null=True, max_digits=100, decimal_places=2)
+    weight_with_external_load = models.DecimalField(blank=True, null=True, max_digits=100, decimal_places=2)
     reason_of_flight = models.ForeignKey(Razon, related_name='operaciones', on_delete=models.CASCADE)
     other_reason = models.CharField(max_length=100, blank=True)
     operator = models.ForeignKey(Operador, related_name='operaciones', on_delete=models.CASCADE)
@@ -293,14 +293,14 @@ class Operacion(models.Model):
     
     def calcular_combustible_usado(self):
        
-        cargado = self.fuel
+        cargado = self.fuel or Decimal('0.0')
 
-        remanente = self.fuel_on_landing
+        remanente = self.fuel_on_landing  or Decimal('0.0')
 
-        restar = cargado - remanente
+        restar = cargado - remanente 
 
 
-        used_fuel = restar
+        used_fuel = restar or Decimal('0.0')
 
         return used_fuel
     
