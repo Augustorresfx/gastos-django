@@ -1,1 +1,0 @@
-window.onload(feather.replace());
