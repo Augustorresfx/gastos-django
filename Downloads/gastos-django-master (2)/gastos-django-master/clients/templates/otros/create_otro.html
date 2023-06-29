@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  
+    <main class="mt-5 pt-3">
+        <div class="row">
+            <div class="col-md-4 offset-md-4 mt-5">
+                <form action="/otros/create/" method="POST" class="card card-body ">
+                    <h1 class="text-center">
+                        Crear otro
+                    </h1>
+
+                    {{error}}
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="title">Nombre completo:</label>
+                        <input type="text" name="name" id="name"
+                        class="form-control" placeholder="Escribe el nombre completo">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description">Horas de vuelo:</label>
+                        <input type="float" name="horas_voladas" id="horas_voladas" value="0.0"
+                        class="form-control" placeholder="Escribe el número de horas">
+                    </div>
+
+                    <div class="mb-3">
+                        
+                        <label for="expiration">Fecha de expiración del psicofísico:</label>
+                        <p class="text text-muted">(Opcional)</p>
+                        <input type="date" name="expiration" id="expiration"
+                        class="form-control" placeholder="Fecha de expiración del psicofísico">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="rol">Rol:</label>
+                        {{ form.rol }}
+                    </div>
+                  
+
+                    <button type="submit" class="btn btn-primary">
+                        Crear
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+{% endblock %}

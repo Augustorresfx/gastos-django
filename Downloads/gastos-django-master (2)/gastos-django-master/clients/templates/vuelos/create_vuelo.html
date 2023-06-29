@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <main class="mt-5 pt-3">
+        <div class="row">
+            <div class="col-md-4 offset-md-4 mt-5">
+                <form action="/vuelos/create/" method="POST" class="card card-body ">
+                    <h1 class="text-center">
+                        Crear operación
+                    </h1>
+
+                    {{error}}
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="title">Titulo:</label>
+                        {{ form.title }}
+                    </div>
+
+                    <div class="mb-3">
+                        <i class="fa-regular fa-plane"></i>
+                        <label for="aeronave">Aeronave:</label>
+                        {{ form.aeronave }}
+                    </div>
+
+                    <div class="mb-3">
+                        <i class="fa-regular fa-plane"></i>
+                        <label for="plane">Piloto:</label>
+                        {{ form.pilot }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="alumn">Alumnos / Inspector / Copiloto (Cuando ocurra):</label>
+                        {{form.alumn}}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="mechanic">Mecánico:</label>
+                        {{ form.mechanic }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="cant_pasajeros">Cantidad de pasajeros:</label>
+                        <input type="number" name="cant_pasajeros" id="cant_pasajeros"
+                        class="form-control" placeholder="Escribe la cantidad de pasajeros" value="0">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="fecha">Fecha de vuelo:</label>
+                        <input type="date" name="fecha" id="fecha"
+                        class="form-control" placeholder="Ingresa la fecha de vuelo: ">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="title">Cantidad de combustible al despegue (litros):</label>
+                        <input type="number" name="fuel" id="fuel"
+                        class="form-control" placeholder="Escribe la cantidad de litros">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="title">Cantidad de combustible al aterrizaje (litros):</label>
+                        <input type="number" name="fuel_on_landing" id="fuel_on_landing"
+                        class="form-control" placeholder="Escribe la cantidad de litros">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="title">Lugar de salida:</label>
+                        <input type="text" name="takeoff_place" id="takeoff_place"
+                        class="form-control" placeholder="Escribe el nombre del lugar">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="title">Lugar de aterrizaje:</label>
+                        <input type="text" name="landing_place" id="landing_place"
+                        class="form-control" placeholder="Escribe el nombre del lugar">
+                    </div>
+
+
+
+                    <div class="mb-3">
+                        <label for="title">Hora de puesta en marcha motor:</label>
+                        <input type="time" name="engine_ignition_1" id="engine_ignition_1"
+                        class="form-control" placeholder="Hora de puesta en marcha motor 1">
+                    </div>
+
+                    <div class="mb-3">
+                    
+                        <label for="title">Horario de despegue:</label>
+                        <p class="text-danger">*Por favor asegurarse de que este campo sea correcto, ya que no podrá ser actualizado*</p>
+                        <input type="time" name="takeoff_time" id="takeoff_time"
+                        class="form-control" placeholder="Horario de despegue">
+                    </div>
+
+                    <div class="mb-3">
+                       
+                        <label for="title">Horario de aterrizaje:</label>
+                        <p class="text-danger">*Por favor asegurarse de que este campo sea correcto, ya que no podrá ser actualizado*</p>
+                        <input type="time" name="landing_time" id="landing_time"
+                        class="form-control" placeholder="Horario de aterrizaje">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="title">Hora de corte motor:</label>
+                        <input type="time" name="engine_cut_1" id="engine_cut_1"
+                        class="form-control" placeholder="Hora de corte motor 1">
+                    </div>
+
+
+                    <div class="mb-3">
+                        <label for="title">Cantidad de aterrizajes:</label>
+                        <input type="number" name="number_of_landings" id="number_of_landings"
+                        class="form-control" placeholder="Escribe la cantidad de aterrizajes">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="title">Ciclos de puesta en marcha:</label>
+                        <input type="number" name="start_up_cycles" id="start_up_cycles"
+                        class="form-control" placeholder="Escribe los ciclos de puesta en marcha">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="title">Cantidad de amerizajes:</label>
+                        <input type="number" name="number_of_splashdowns" id="number_of_splashdowns"
+                        class="form-control" value="0" placeholder="Escribe la cantidad de amerizajes">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="title">Cantidad de ciclos de lanzamientos de agua:</label>
+                        <input type="number" name="water_release_cycles" id="water_release_cycles"
+                        class="form-control" value="0" placeholder="Escribe los ciclos de lanzamientos de agua">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="title">Cantidad de agua lanzada (litros):</label>
+                        <input type="number" name="water_release_amount" id="water_release_amount"
+                        class="form-control" value="0" placeholder="Escribe la cantidad de agua lanzada">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="title">Ciclos con carga externa:</label>
+                        <input type="number" name="cycles_with_external_load" id="cycles_with_external_load"
+                        class="form-control" value="0" placeholder="Escribe los ciclos de lanzamientos de agua">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="title">Peso con carga externa (kilogramos):</label>
+                        <input type="number" name="weight_with_external_load" id="weight_with_external_load"
+                        class="form-control" value="0" placeholder="Escribe el peso con carga externa">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="mechanic">Motivo del vuelo:</label>
+                        {{ form.reason_of_flight }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="mechanic">Operador de la aeronave:</label>
+                        {{ form.operator }}
+                    </div>
+                    
+                    
+                    <div class="mb-3">
+                        <label for="client">Cliente:</label>
+                        {{ form.client }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="operation_note">Nota adicional sobre operaciones:</label>
+                        <input type="text" name="operation_note" id="operation_note"
+                        class="form-control" placeholder="Escribe la nota adicional">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="maintenance_note">Nota adicional sobre mantenimiento:</label>
+                        <input type="text" name="maintenance_note" id="maintenance_note"
+                        class="form-control" placeholder="Escribe la nota adicional">
+                    </div>
+                
+                    <button type="submit" class="btn btn-primary">
+                        Crear
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+{% endblock %}
