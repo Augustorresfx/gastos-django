@@ -51,6 +51,9 @@ class GastoForm(ModelForm):
             'categoria': forms.Select(attrs={
                 'class': 'form-select'
             }),
+            'moneda': forms.Select(attrs={
+                'class': 'form-select'
+            }),
         }
 
 class ClientForm(ModelForm):
