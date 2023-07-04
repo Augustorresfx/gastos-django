@@ -652,47 +652,46 @@ def send_mail_with_excel(request):
     excel_file = BytesIO()
     wb.save(excel_file)
     excel_file.seek(0)
-
+    user_email = request.user.email
     destinatarios = ['gdguerra07@gmail.com', 'gguerra@helicopterosdelpacifico.com.ar', 'augustorresfx@gmail.com']
     destinatarios2 = ['augustorresfx@gmail.com']
     try:
-        for destinatario in destinatarios:
+    
+        msg = MIMEMultipart()
+        msg['From'] = 'no.reply.wings@gmail.com'
+        msg['To'] = user_email
 
-            msg = MIMEMultipart()
-            msg['From'] = 'no.reply.wings@gmail.com'
-            msg['To'] = destinatario
+        msg['Subject'] = 'Su reporte de operaciones'
 
-            msg['Subject'] = 'Su reporte de operaciones'
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload((excel_file).read())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', 'attachment', filename='Reporte_Diario' + \
+        str(datetime.now())+'.xlsx')
+        msg.attach(part)
 
-            part = MIMEBase('application', 'octet-stream')
-            part.set_payload((excel_file).read())
-            encoders.encode_base64(part)
-            part.add_header('Content-Disposition', 'attachment', filename='Reporte_Diario' + \
-            str(datetime.now())+'.xlsx')
-            msg.attach(part)
+        html = """\
+            <html>
+            <head></head>
+            <body>
+                <h1>Estimado/a,</h1>
+                <h2>Adjunto encontrará el archivo de Excel con los datos solicitados:</h2>
+            </body>
+            </html>
+            """
+        msg.attach(MIMEText(html, 'html'))
 
-            html = """\
-                <html>
-                <head></head>
-                <body>
-                    <h1>Estimado/a,</h1>
-                    <h2>Adjunto encontrará el archivo de Excel con los datos solicitados:</h2>
-                </body>
-                </html>
-                """
-            msg.attach(MIMEText(html, 'html'))
-
-            # Conectar y enviar el correo electrónico
-            smtp_server = 'smtp.gmail.com'  # Cambia esto a tu servidor SMTP
-            smtp_port = 587  # Cambia esto al puerto de tu servidor SMTP
-            smtp_user = os.getenv('SMTP_USER')
-            smtp_password = os.getenv('SMTP_PASSWORD')  # Cambia esto a tu contraseña SMTP
-            smtp_connection = smtplib.SMTP(smtp_server, smtp_port)
-            smtp_connection.starttls()
-            smtp_connection.login(smtp_user, smtp_password)
-            smtp_connection.sendmail(smtp_user, msg['To'], msg.as_string())
-            smtp_connection.quit()
-            excel_file.seek(0)
+        # Conectar y enviar el correo electrónico
+        smtp_server = 'smtp.gmail.com'  # Cambia esto a tu servidor SMTP
+        smtp_port = 587  # Cambia esto al puerto de tu servidor SMTP
+        smtp_user = os.getenv('SMTP_USER')
+        smtp_password = os.getenv('SMTP_PASSWORD')  # Cambia esto a tu contraseña SMTP
+        smtp_connection = smtplib.SMTP(smtp_server, smtp_port)
+        smtp_connection.starttls()
+        smtp_connection.login(smtp_user, smtp_password)
+        smtp_connection.sendmail(smtp_user, msg['To'], msg.as_string())
+        smtp_connection.quit()
+        excel_file.seek(0)
         messages.success(request, 'Los correos electrónicos se enviaron correctamente')
     except:
         messages.error(request, 'Error enviando los correos electrónicos')
