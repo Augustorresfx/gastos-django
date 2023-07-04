@@ -285,7 +285,7 @@ def expensas_send_mail_with_excel(request):
     hoy = timezone.now().date()  # Obtiene la fecha actual
     objetos_hoy = Gasto.objects.filter(created__date=hoy)
     objetos_todos = Gasto.objects.all()
-
+    user_email = request.user.email
     row = 8  # empezar a agregar en la fila 8
     col = 1  # agregar en la primera columna
     for product in objetos_todos:
@@ -397,43 +397,42 @@ def expensas_send_mail_with_excel(request):
     destinatarios = ['gdguerra07@gmail.com', 'gguerra@helicopterosdelpacifico.com.ar', 'augustorresfx@gmail.com']
     destinatarios2 = ['augustorresfx@gmail.com']
     try:
-        for destinatario in destinatarios:
 
-            msg = MIMEMultipart()
-            msg['From'] = 'no.reply.wings@gmail.com'
-            msg['To'] = destinatario
+        msg = MIMEMultipart()
+        msg['From'] = 'no.reply.wings@gmail.com'
+        msg['To'] = user_email
 
-            msg['Subject'] = 'Su reporte de expensas'
+        msg['Subject'] = 'Su reporte de expensas'
 
-            part = MIMEBase('application', 'octet-stream')
-            part.set_payload((excel_file).read())
-            encoders.encode_base64(part)
-            part.add_header('Content-Disposition', 'attachment', filename='Reporte_expensas' + \
-            str(datetime.now())+'.xlsx')
-            msg.attach(part)
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload((excel_file).read())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', 'attachment', filename='Reporte_expensas' + \
+        str(datetime.now())+'.xlsx')
+        msg.attach(part)
 
-            html = """\
-                <html>
-                <head></head>
-                <body>
-                    <h1>Estimado/a,</h1>
-                    <h2>Adjunto encontrará el archivo de Excel con los datos solicitados:</h2>
-                </body>
-                </html>
-                """
-            msg.attach(MIMEText(html, 'html'))
+        html = """\
+            <html>
+            <head></head>
+            <body>
+                <h1>Estimado/a,</h1>
+                <h2>Adjunto encontrará el archivo de Excel con los datos solicitados:</h2>
+            </body>
+            </html>
+            """
+        msg.attach(MIMEText(html, 'html'))
 
-            # Conectar y enviar el correo electrónico
-            smtp_server = 'smtp.gmail.com'  # Cambia esto a tu servidor SMTP
-            smtp_port = 587  # Cambia esto al puerto de tu servidor SMTP
-            smtp_user = os.getenv('SMTP_USER')
-            smtp_password = os.getenv('SMTP_PASSWORD')  # Cambia esto a tu contraseña SMTP
-            smtp_connection = smtplib.SMTP(smtp_server, smtp_port)
-            smtp_connection.starttls()
-            smtp_connection.login(smtp_user, smtp_password)
-            smtp_connection.sendmail(smtp_user, msg['To'], msg.as_string())
-            smtp_connection.quit()
-            excel_file.seek(0)
+        # Conectar y enviar el correo electrónico
+        smtp_server = 'smtp.gmail.com'  # Cambia esto a tu servidor SMTP
+        smtp_port = 587  # Cambia esto al puerto de tu servidor SMTP
+        smtp_user = os.getenv('SMTP_USER')
+        smtp_password = os.getenv('SMTP_PASSWORD')  # Cambia esto a tu contraseña SMTP
+        smtp_connection = smtplib.SMTP(smtp_server, smtp_port)
+        smtp_connection.starttls()
+        smtp_connection.login(smtp_user, smtp_password)
+        smtp_connection.sendmail(smtp_user, msg['To'], msg.as_string())
+        smtp_connection.quit()
+        excel_file.seek(0)
         messages.success(request, 'Los correos electrónicos se enviaron correctamente')
     except:
         messages.error(request, 'Error enviando los correos electrónicos')
@@ -603,7 +602,7 @@ def vuelo_detail(request, product_id):
     return redirect('vuelos')
     
 @login_required
-@user_passes_test(lambda user: user.groups.filter(name='PermisoBasico').exists() or user.is_staff)
+@user_passes_test(lambda user: user.is_staff)
 
 def send_mail_with_excel(request):
     module_dir = os.path.dirname(__file__)   #get current directory
@@ -624,6 +623,7 @@ def send_mail_with_excel(request):
     copilotos = Otro.objects.filter(rol__title='copiloto')
     row = 8  # empezar a agregar en la fila 8
     col = 1  # agregar en la primera columna
+    user_email = request.user.email
     for product in objetos_todos:
         print(product.fecha)
         timeformat = "%H:%M:%S"
@@ -652,7 +652,7 @@ def send_mail_with_excel(request):
     excel_file = BytesIO()
     wb.save(excel_file)
     excel_file.seek(0)
-    user_email = request.user.email
+    
     destinatarios = ['gdguerra07@gmail.com', 'gguerra@helicopterosdelpacifico.com.ar', 'augustorresfx@gmail.com']
     destinatarios2 = ['augustorresfx@gmail.com']
     try:
